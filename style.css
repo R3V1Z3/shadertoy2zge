@@ -39,3 +39,44 @@ button:hover {
     margin-top: 20px;
     color: green;
 }
+
+.github-corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    background-color: #151513;
+    color: white;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 5px 15px;
+    z-index: 1000;
+}
+
+.github-corner:hover {
+    background-color: #000;
+}
+
+.github-corner:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-left: 150px solid transparent;
+    border-bottom: 150px solid #151513;
+    transform: translate(100%, 0);
+}
+
+.github-corner:hover:before {
+    border-bottom-color: #000;
+}
+
+.github-corner span {
+    position: relative;
+    top: 25px;
+    transform: rotate(45deg);
+    display: block;
+}
