@@ -55,7 +55,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + 1;
+            const endIndex = t.indexOf(endMarker) - endMarker.length;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -85,11 +85,13 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables to code
         varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);\n';
         ZGEvars.forEach(function(i, index) {
-            varString += 'ZGE' + i.id + '=Parameters[' + index + ']';
+            varString += 'ZGE' + i.id + '=';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
-                // (x-min(x))/(max(x)-min(x))
-                varString += '=((' + i.value + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
+                // ( x - min(x) ) / ( max(x) - min(x) )
+                varString += '=((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
+            } else {
+                varString += 'Parameters[' + index + ']';
             }
             varString += ';\n';
         });
