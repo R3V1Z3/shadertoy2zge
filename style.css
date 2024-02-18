@@ -17,6 +17,10 @@ textarea {
   padding: 10px;
 }
 
+#outputCode {
+  background: #eee;
+}
+
 button {
   width: 100%;
   padding: 10px;

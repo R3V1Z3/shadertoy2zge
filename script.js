@@ -2,19 +2,42 @@ document.getElementById('convertButton').addEventListener('click', async functio
     const inputCode = document.getElementById('inputCode').value;
     let ZGEname = "ZGEshader";
     let ZGEauthor = "Shader author";
+    const ZGEvars = [];
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
+    // Fill vars variable array
+    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*([0-9.]+),\s*([0-9.]+))?/g;
+    let matches;
+    while ((matches = regex.exec(t)) !== null) {
+        // Extracting the range values if they are present
+        let rangeFrom = matches[3] ? matches[3].trim() : undefined;
+        let rangeTo = matches[4] ? matches[4].trim() : undefined;
+        outputCode = "uniform float ZGE" + matches[1] + ";\n" + outputCode;
+        ZGEvars.push({
+            id: matches[1],
+            value: matches[2].trim(),
+            rangeFrom: rangeFrom,
+            rangeTo: rangeTo,
+        });
+    }
     // Get shader name and author from provided code
     var lines = outputCode.split('\n');
-    lines.forEach(line => {
+    lines.forEach(function(line, i, object) {
         if (line.includes("//")) {
             var index = line.indexOf("ZGEname:");
             if (index !== -1) {
                 ZGEname = line.substring(index + "ZGEname:".length).trim();
+                object.splice(i, 1);
             }
             index = line.indexOf("ZGEauthor:");
             if (index !== -1) {
                 ZGEauthor = line.substring(index + "ZGEauthor:".length).trim();
+                object.splice(i, 1);
             }
+        }
+        // we've already filled the ZGEvars array so lets now remove the lines from the code
+        // since they'll be added as uniforms
+        if (line.includes("float ZGE")) {
+            object.splice(i, 1);
         }
     });
 
