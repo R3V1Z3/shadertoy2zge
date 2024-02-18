@@ -12,7 +12,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // Extracting the range values if they are present
         let rangeFrom = matches[3] ? matches[3].trim() : undefined;
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
-        varString += "uniform float ZGE" + matches[1] + ';\n';
+        varString += "uniform float " + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
             value: matches[2].trim(),
@@ -55,7 +55,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + endMarker.length + 5;
+            const endIndex = t.indexOf(endMarker) + endMarker.length + 1;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -69,7 +69,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i) {
             varString += '        ';
-            varString += '<ShaderVariable VariableName="ZGE' + i.id;
+            varString += '<ShaderVariable VariableName="' + i.id;
             varString += '" VariableRef="ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
