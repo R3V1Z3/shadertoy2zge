@@ -88,7 +88,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables to code
         varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);\n';
         ZGEvars.forEach(function(i, index) {
-            varString += 'ZGE' + i.id + '=';
+            varString += 'ZGE' + i.id + '.value=';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
                 if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
