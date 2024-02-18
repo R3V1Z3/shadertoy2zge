@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<ZApplication Name="App" Caption="ZGameEditor application" FileVersion="2">
+  <OnUpdate>
+    <ZExpression>
+      <Expression>
+<![CDATA[//Optional: Move  to Constants to ZLibrary before release.
+float Speed=1.0;//(Parameters[4]-.5)*4.0;
+float delta=app.DeltaTime*Speed; //comment to use other time options
+uTime+=delta;
+
+//Most used ShaderToy uniform variables
+uResolution=vector2(app.ViewportWidth,app.ViewportHeight);
+uViewport=vector2(app.ViewportX,app.ViewportY);
+uMouse=vector4(0.0,0.0,0.0,0.0);]]>
+      </Expression>
+    </ZExpression>
+  </OnUpdate>
+  <OnRender>
+    <UseMaterial Material="mCanvas"/>
+    <RenderSprite/>
+  </OnRender>
+  <Content>
+    <Shader Name="ShaderToy_Default">
+      <VertexShaderSource>
+<![CDATA[#version 120
+
+void main(){
+  vec4 vertex = gl_Vertex;
+  vertex.xy *= 2.0;
+  gl_Position = vertex;
+}]]>
+      </VertexShaderSource>
+      <FragmentShaderSource>
+<![CDATA[#version 120
+
+uniform vec2 iResolution,iViewport;
+uniform float iTime;
+uniform vec4 iMouse;
+uniform sampler2D tex1;
+#define iChannel0 tex1
+
+//ShaderToy code here.
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 uv = fragCoord/iResolution;
+
+    // Time varying pixel color
+    vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
+
+    // Output to screen
+    fragColor = vec4(col,1.0);
+}
+//ShaderToy code here.
+
+void main(){
+    //ZGE does not use mainImage( out vec4 fragColor, in vec2 fragCoord )
+    //Rededefined fragCoord as gl_FragCoord.xy-iViewport(dynamic window)
+    mainImage(gl_FragColor,gl_FragCoord.xy-iViewport);
+}]]>
+      </FragmentShaderSource>
+      <UniformVariables>
+        <ShaderVariable VariableName="iResolution" VariableRef="uResolution"/>
+        <ShaderVariable VariableName="iViewport" VariableRef="uViewport"/>
+        <ShaderVariable VariableName="iTime" VariableRef="uTime"/>
+        <ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>
+      </UniformVariables>
+    </Shader>
+    <Group Comment="Default ShaderToy Uniform Varible Inputs">
+      <Children>
+        <Variable Name="uResolution" Type="6"/>
+        <Variable Name="uTime"/>
+        <Variable Name="uTimeDelta"/>
+        <Variable Name="uFrame" Type="1"/>
+        <Variable Name="uFrameRate"/>
+        <Variable Name="uMouse" Type="8"/>
+        <Variable Name="uDate" Type="8"/>
+      </Children>
+    </Group>
+    <Group Comment="FL Studio Varibles">
+      <Children>
+        <Array Name="Parameters" SizeDim1="5" Persistent="255">
+          <Values>
+<![CDATA[789C63600081067B54CC00C11196760C4800007376044A]]>
+          </Values>
+        </Array>
+        <Constant Name="ParamHelpConst" Type="2">
+          <StringValue>
+<![CDATA[Alpha
+Hue
+Saturation
+Lightness
+Speed
+
+]]>
+          </StringValue>
+        </Constant>
+        <Constant Name="AuthorInfo" Type="2"/>
+      </Children>
+    </Group>
+    <Group Comment="Unique Uniform Varible Inputs">
+      <Children>
+        <Variable Name="uViewport" Type="6"/>
+      </Children>
+    </Group>
+    <Group Comment="Materials and Textures">
+      <Children>
+        <Material Name="mCanvas" Blend="1" Shader="ShaderToy_Default"/>
+      </Children>
+    </Group>
+  </Content>
+</ZApplication>
