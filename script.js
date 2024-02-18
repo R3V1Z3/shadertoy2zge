@@ -55,7 +55,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) - endMarker.length;
+            const endIndex = t.indexOf(endMarker) + endMarker.length;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -88,8 +88,12 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += 'ZGE' + i.id + '=';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
-                // ( x - min(x) ) / ( max(x) - min(x) )
-                varString += '=((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
+                if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
+                    varString += 'Parameters[' + index + ']';
+                } else {
+                    // ( x - min(x) ) / ( max(x) - min(x) )
+                    varString += '=((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
+                }
             } else {
                 varString += 'Parameters[' + index + ']';
             }
