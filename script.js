@@ -3,20 +3,21 @@ document.getElementById('convertButton').addEventListener('click', async functio
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
 
     try {
-        const response = await fetch('https://r3v1z3.github.io/shadertoy2zge/templates/basic.zgeproj');
+        const response = await fetch('/templates/basic.zgeproj');
         if (!response.ok) throw new Error('Network response was not ok.');
 
-        let template = await response.text();
+        let t = await response.text();
         const startMarker = "//ShaderToy code start.";
         const endMarker = "//ShaderToy code end.";
 
-        if(template.includes(startMarker) && template.includes(endMarker)) {
-            const startIndex = template.indexOf(startMarker) + startMarker.length;
-            const endIndex = template.lastIndexOf(endMarker);
-            template = template.substring(0, startIndex) + '\n' + outputCode + '\n' + template.substring(endIndex);
+        if(t.includes(startMarker) && t.includes(endMarker)) {
+            const startIndex = t.indexOf(startMarker) + startMarker.length;
+            const endIndex = t.lastIndexOf(endMarker);
+            t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
-        document.getElementById('outputCode').value = template;
+        outputCode = t;
+        document.getElementById('outputCode').value = outputCode;
     } catch (error) {
         console.error('Failed to fetch the template:', error);
     }
