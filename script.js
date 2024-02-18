@@ -43,6 +43,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
         if (line.includes("float ZGE")) reAdd = false;
         if (reAdd) outputCode += line + '\n';
     });
+    ZGEvars.forEach(function(i) {
+        outputCode = outputCode.replaceAll('ZGE' + i.id, i.id);
+    });
 
     // Splice user code into template
     try {
