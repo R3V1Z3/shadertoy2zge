@@ -64,7 +64,6 @@ void main(){
         <ShaderVariable VariableName="iViewport" VariableRef="uViewport"/>
         <ShaderVariable VariableName="iTime" VariableRef="uTime"/>
         <ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>
-        <ZGEShaderVariables/>
       </UniformVariables>
     </Shader>
     <Group Comment="Default ShaderToy Uniform Varible Inputs">

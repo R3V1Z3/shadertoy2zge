@@ -20,7 +20,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
             rangeTo: rangeTo,
         });
     }
-    outputCode = varString + outputCode;
     // Get shader name and author from provided code
     var lines = outputCode.split('\n');
     lines.forEach(function(line, i, object) {
@@ -28,15 +27,17 @@ document.getElementById('convertButton').addEventListener('click', async functio
             var index = line.indexOf("ZGEname:");
             if (index !== -1) {
                 ZGEname = line.substring(index + "ZGEname:".length).trim();
+                object.splice(i, 1);
             }
             index = line.indexOf("ZGEauthor:");
             if (index !== -1) {
                 ZGEauthor = line.substring(index + "ZGEauthor:".length).trim();
+                object.splice(i, 1);
             }
         }
         // we've already filled the ZGEvars array so lets now remove the lines from the code
         // since they'll be added as uniforms
-        if (line.includes("float ZGE")) {
+        if (line.includes("float ZGE") && !line.includes("uniform")) {
             object.splice(i, 1);
         }
     });
@@ -66,7 +67,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables as parameters
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>';
         ZGEvars.forEach(function(i) {
-            varString += '\t\t\t\t';
+            varString += '        ';
             varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1);
             varString += '" VariableName=ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
