@@ -55,7 +55,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + endMarker.length + 3;
+            const endIndex = t.indexOf(endMarker) + endMarker.length + 5;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -69,8 +69,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i) {
             varString += '        ';
-            varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1);
-            varString += '" VariableName="ZGE' + i.id;
+            varString += '<ShaderVariable VariableName="ZGE' + i.id;
+            varString += '" VariableRef="ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
@@ -92,7 +92,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                     varString += 'Parameters[' + index + ']';
                 } else {
                     // ( x - min(x) ) / ( max(x) - min(x) )
-                    varString += '=((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
+                    varString += '((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
                 }
             } else {
                 varString += 'Parameters[' + index + ']';
@@ -129,6 +129,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
     downloadButton.setAttribute('download', ZGEname + '.zgeproj');
     
     // Change button to an anchor to support download attribute
-    downloadButton.outerHTML = downloadButton.outerHTML.replace(/^<button/, '<a').replace(/button>$/, 'a>');
+    downloadButton.outerHTML = downloadButton.outerHTML.replace(/^<button/, '<a class="button"').replace(/button>$/, 'a>');
 
 });
