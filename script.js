@@ -20,8 +20,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
     } catch (error) {
         console.error('Failed to fetch the template:', error);
     }
-
-    document.getElementById('outputCode').value = outputCode;
     
     // Display the notification
     const notification = document.getElementById('notification');
