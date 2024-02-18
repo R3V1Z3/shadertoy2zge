@@ -7,11 +7,12 @@ document.getElementById('convertButton').addEventListener('click', async functio
     // Fill vars variable array
     const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*([0-9.]+),\s*([0-9.]+))?/g;
     let matches;
+    let varString = "";
     while ((matches = regex.exec(outputCode)) !== null) {
         // Extracting the range values if they are present
         let rangeFrom = matches[3] ? matches[3].trim() : undefined;
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
-        outputCode = "uniform float ZGE" + matches[1] + ";\n" + outputCode;
+        varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
             value: matches[2].trim(),
@@ -19,6 +20,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
             rangeTo: rangeTo,
         });
     }
+    outputCode = varString + outputCode;
     // Get shader name and author from provided code
     var lines = outputCode.split('\n');
     lines.forEach(function(line, i, object) {
@@ -62,32 +64,33 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // parse to get the variable name "ZGExxxxxx"
 
         // add variables as parameters
-        let varString = "";
+        varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>';
         ZGEvars.forEach(function(i) {
-            varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1).toLowerCase();
+            varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1);
             varString += '" VariableName=ZGE"' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
-        t = t.replace('<ZGEShaderVariables>', varString);
+        t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>', varString);
 
         // add variables to CDATA
-        // "<![CDATA[ZGEParameters"
-        varString = "<![CDATA[";
+        varString = '<![CDATA[';
         ZGEvars.forEach(function(i) {
-            varString += i.id[0].toUpperCase() + i.id.slice(1).toLowerCase() + "\n";
+            varString += i.id[0].toUpperCase() + i.id.slice(1) + "\n";
         });
-        t = t.replace('<![CDATA[ZGEParameters', varString);
+        t = t.replace('<![CDATA[Alpha\n', varString);
 
         // add variables to code
-        varString = "";
+        varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n';
         ZGEvars.forEach(function(i) {
+            varString += 'ZGE' + i.id + '=Parameters[' + i + ']' + ';\n';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
-                varString += i.id[0].toUpperCase() + i.id.slice(1).toLowerCase() + "\n";
+                // varString += 'ZGE' + i.id + '=Parameters[' + i + ']' + '\n';
             } else {
-                varString += '<Variable Name="' + i.id + '" Type="2" Value="' + i.value + '"/>' + "\n";
+                //varString += '<Variable Name="' + i.id + '" Type="2" Value="' + i.value + '"/>\n';
             }
         });
+        t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>', varString);
 
         outputCode = t;
         document.getElementById('outputCode').value = t;

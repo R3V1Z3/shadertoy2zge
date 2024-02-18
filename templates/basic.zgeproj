@@ -87,7 +87,7 @@ void main(){
         </Array>
         <Constant Name="ParamHelpConst" Type="2">
           <StringValue>
-<![CDATA[ZGEParameters
+<![CDATA[Alpha
 ]]>
           </StringValue>
         </Constant>
