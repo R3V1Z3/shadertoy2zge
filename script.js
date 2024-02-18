@@ -26,12 +26,10 @@ document.getElementById('convertButton').addEventListener('click', async functio
             var index = line.indexOf("ZGEname:");
             if (index !== -1) {
                 ZGEname = line.substring(index + "ZGEname:".length).trim();
-                object.splice(i, 1);
             }
             index = line.indexOf("ZGEauthor:");
             if (index !== -1) {
                 ZGEauthor = line.substring(index + "ZGEauthor:".length).trim();
-                object.splice(i, 1);
             }
         }
         // we've already filled the ZGEvars array so lets now remove the lines from the code
@@ -40,6 +38,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
             object.splice(i, 1);
         }
     });
+    // rejoin code with changes
+    output = lines.join('\n');
 
     try {
         const response = await fetch('templates/basic.zgeproj');
@@ -59,11 +59,35 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let authorString = '<Constant Name="AuthorInfo" Type="2" StringValue="' + ZGEauthor + '"/>';
         t = t.replace(/<Constant Name="AuthorInfo"[^>]*>/, authorString);
 
-        // All variable definitions prefixed ZGE (case sensitive) are replaced with uniforms and added as ZGE params.
-        // floats:
-        // get all occurrences of "float ZGE"
         // parse to get the variable name "ZGExxxxxx"
-        // add to appropriate section of templae, "uniform float ZGExxxxxx;"
+
+        // add variables as parameters
+        let varString = "";
+        ZGEvars.forEach(function(i) {
+            varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1).toLowerCase();
+            varString += '" VariableName=ZGE"' + i.id;
+            varString += '" Value="' + i.value + '"/>\n';
+        });
+        t = t.replace('<ZGEShaderVariables>', varString);
+
+        // add variables to CDATA
+        // "<![CDATA[ZGEParameters"
+        varString = "<![CDATA[";
+        ZGEvars.forEach(function(i) {
+            varString += i.id[0].toUpperCase() + i.id.slice(1).toLowerCase() + "\n";
+        });
+        t = t.replace('<![CDATA[ZGEParameters', varString);
+
+        // add variables to code
+        varString = "";
+        ZGEvars.forEach(function(i) {
+            // if the range is defined, add it to the string
+            if (i.rangeFrom && i.rangeTo) {
+                varString += i.id[0].toUpperCase() + i.id.slice(1).toLowerCase() + "\n";
+            } else {
+                varString += '<Variable Name="' + i.id + '" Type="2" Value="' + i.value + '"/>' + "\n";
+            }
+        });
 
         outputCode = t;
         document.getElementById('outputCode').value = t;
@@ -83,7 +107,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     if (!downloadButton) { // If the button doesn't exist, create it
         downloadButton = document.createElement('button');
         downloadButton.id = 'downloadButton';
-        downloadButton.textContent = 'Download Converted Code';
+        downloadButton.textContent = 'Download ZGE Project File';
         document.querySelector('.container').appendChild(downloadButton);
     }
     

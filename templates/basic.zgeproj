@@ -5,7 +5,7 @@
       <Expression>
 <![CDATA[//Optional: Move  to Constants to ZLibrary before release.
 float Speed=1.0;//(Parameters[4]-.5)*4.0;
-float delta=app.DeltaTime*Speed; //comment to use other time options
+float delta=app.DeltaTime*Speed;
 uTime+=delta;
 
 //Most used ShaderToy uniform variables
@@ -64,6 +64,7 @@ void main(){
         <ShaderVariable VariableName="iViewport" VariableRef="uViewport"/>
         <ShaderVariable VariableName="iTime" VariableRef="uTime"/>
         <ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>
+        <ZGEShaderVariables/>
       </UniformVariables>
     </Shader>
     <Group Comment="Default ShaderToy Uniform Varible Inputs">
@@ -86,11 +87,7 @@ void main(){
         </Array>
         <Constant Name="ParamHelpConst" Type="2">
           <StringValue>
-<![CDATA[Alpha
-Hue
-Saturation
-Lightness
-Speed
+<![CDATA[ZGEParameters
 ]]>
           </StringValue>
         </Constant>
