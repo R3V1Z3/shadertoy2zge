@@ -3,7 +3,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
 
     try {
-        const response = await fetch('/templates/basic.zgeproj');
+        const response = await fetch('templates/basic.zgeproj');
         if (!response.ok) throw new Error('Network response was not ok.');
 
         let t = await response.text();
