@@ -55,7 +55,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + endMarker.length;
+            const endIndex = t.indexOf(endMarker) + endMarker.length + 3;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
