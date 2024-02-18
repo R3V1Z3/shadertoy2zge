@@ -41,7 +41,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
     });
     // rejoin code with changes
-    output = lines.join('\n');
+    outputCode = lines.join('\n');
 
     try {
         const response = await fetch('templates/basic.zgeproj');
@@ -66,8 +66,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables as parameters
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>';
         ZGEvars.forEach(function(i) {
+            varString += '\t\t\t\t';
             varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1);
-            varString += '" VariableName=ZGE"' + i.id;
+            varString += '" VariableName=ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>', varString);
@@ -81,8 +82,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         // add variables to code
         varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n';
-        ZGEvars.forEach(function(i) {
-            varString += 'ZGE' + i.id + '=Parameters[' + i + ']' + ';\n';
+        ZGEvars.forEach(function(i, index) {
+            varString += 'ZGE' + i.id + '=Parameters[' + index + ']' + ';\n';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
                 // varString += 'ZGE' + i.id + '=Parameters[' + i + ']' + '\n';

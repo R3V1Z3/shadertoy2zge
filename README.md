@@ -1,10 +1,6 @@
 Shadertoy to ZGameEditor converter. The goal of this project is a fast and accurate one-shot conversion of Shadertoy shaders to ZGameEditor shaders. Just paste in your Shadertoy code and it should spit out a fully functional .zgeproj file.
 
-For those unaware, ZGameEditor is an open-source game engine:
-https://www.zgameeditor.org/
-
-But it's also been fully integrated into FL Studio as a very powerful composer for audio visualization:
-https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm
+For those unaware, [https://www.zgameeditor.org/](https://www.zgameeditor.org/) is an open-source game engine. And it's also been fully integrated as an [FL Studio plugin](https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm), a very powerful composer for audio visualization.
 
 ZGameEditor provides a built-in language for creating games, visualizations and more. But it also supports GLSL shaders and can handle a lot of Shadertoy code out-of-the-box. This converter aims to greatly simplify porting of shaders.
 
