@@ -22,28 +22,29 @@ document.getElementById('convertButton').addEventListener('click', async functio
     }
     // Get shader name and author from provided code
     var lines = outputCode.split('\n');
+    outputCode = varString;
     lines.forEach(function(line, i, object) {
+        // reAdd indicates whether to re-add this line back into outputCode
+        let reAdd = true;
         if (line.includes("//")) {
             var index = line.indexOf("ZGEname:");
             if (index !== -1) {
                 ZGEname = line.substring(index + "ZGEname:".length).trim();
-                object.splice(i, 1);
+                reAdd = false;
             }
             index = line.indexOf("ZGEauthor:");
             if (index !== -1) {
                 ZGEauthor = line.substring(index + "ZGEauthor:".length).trim();
-                object.splice(i, 1);
+                reAdd = false;
             }
         }
         // we've already filled the ZGEvars array so lets now remove the lines from the code
         // since they'll be added as uniforms
-        if (line.includes("float ZGE") && !line.includes("uniform")) {
-            object.splice(i, 1);
-        }
+        if (line.includes("float ZGE")) reAdd = false;
+        if (reAdd) outputCode += line + '\n';
     });
-    // rejoin code with changes
-    outputCode = lines.join('\n');
 
+    // Splice user code into template
     try {
         const response = await fetch('templates/basic.zgeproj');
         if (!response.ok) throw new Error('Network response was not ok.');
@@ -53,8 +54,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
         const endMarker = "//ShaderToy code end.";
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
-            const startIndex = t.indexOf(startMarker) + startMarker.length;
-            const endIndex = t.lastIndexOf(endMarker);
+            const startIndex = t.indexOf(startMarker) - 1;
+            const endIndex = t.lastIndexOf(endMarker) - endMarker.length + 1;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -77,7 +78,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables to CDATA
         varString = '<![CDATA[';
         ZGEvars.forEach(function(i) {
-            varString += i.id[0].toUpperCase() + i.id.slice(1) + "\n";
+            varString += i.id[0].toUpperCase() + i.id.slice(1) + '\n';
         });
         t = t.replace('<![CDATA[Alpha\n', varString);
 
@@ -112,7 +113,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     if (!downloadButton) { // If the button doesn't exist, create it
         downloadButton = document.createElement('button');
         downloadButton.id = 'downloadButton';
-        downloadButton.textContent = 'Download ZGE Project File';
+        downloadButton.textContent = '\u2913 Download ZGE Project File';
         document.querySelector('.container').appendChild(downloadButton);
     }
     
