@@ -85,13 +85,13 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables to code
         varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);\n';
         ZGEvars.forEach(function(i, index) {
-            varString += 'ZGE' + i.id + '=Parameters[' + index + ']' + ';\n';
+            varString += 'ZGE' + i.id + '=Parameters[' + index + ']';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
-                // varString += 'ZGE' + i.id + '=Parameters[' + i + ']' + '\n';
-            } else {
-                //varString += '<Variable Name="' + i.id + '" Type="2" Value="' + i.value + '"/>\n';
+                // (x-min(x))/(max(x)-min(x))
+                varString += '=((' + i.value + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
             }
+            varString += ';\n';
         });
         t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n', varString + ']]>\n');
 
