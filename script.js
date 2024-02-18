@@ -66,14 +66,14 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // parse to get the variable name "ZGExxxxxx"
 
         // add variables as parameters
-        varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>';
+        varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i) {
             varString += '        ';
             varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1);
             varString += '" VariableName=ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
-        t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>', varString);
+        t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
 
         // add variables to CDATA
         varString = '<![CDATA[';
@@ -93,7 +93,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 //varString += '<Variable Name="' + i.id + '" Type="2" Value="' + i.value + '"/>\n';
             }
         });
-        t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>', varString);
+        t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n', varString);
 
         outputCode = t;
         document.getElementById('outputCode').value = t;
