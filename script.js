@@ -1,6 +1,22 @@
 document.getElementById('convertButton').addEventListener('click', async function() {
     const inputCode = document.getElementById('inputCode').value;
+    let ZGEname = "ZGEshader";
+    let ZGEauthor = "Shader author";
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
+    // Get shader name and author from provided code
+    var lines = outputCode.split('\n');
+    lines.forEach(line => {
+        if (line.includes("//")) {
+            var index = line.indexOf("ZGEname:");
+            if (index !== -1) {
+                ZGEname = line.substring(index + "ZGEname:".length).trim();
+            }
+            index = line.indexOf("ZGEauthor:");
+            if (index !== -1) {
+                ZGEauthor = line.substring(index + "ZGEauthor:".length).trim();
+            }
+        }
+    });
 
     try {
         const response = await fetch('templates/basic.zgeproj');
@@ -16,8 +32,18 @@ document.getElementById('convertButton').addEventListener('click', async functio
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
+        // Add shader author into template
+        let authorString = '<Constant Name="AuthorInfo" Type="2" StringValue="' + ZGEauthor + '"/>';
+        t = t.replace(/<Constant Name="AuthorInfo"[^>]*>/, authorString);
+
+        // All variable definitions prefixed ZGE (case sensitive) are replaced with uniforms and added as ZGE params.
+        // floats:
+        // get all occurrences of "float ZGE"
+        // parse to get the variable name "ZGExxxxxx"
+        // add to appropriate section of templae, "uniform float ZGExxxxxx;"
+
         outputCode = t;
-        document.getElementById('outputCode').value = outputCode;
+        document.getElementById('outputCode').value = t;
     } catch (error) {
         console.error('Failed to fetch the template:', error);
     }
@@ -41,7 +67,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     // Set the download link with the converted code
     const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(outputCode);
     downloadButton.setAttribute('href', dataUri);
-    downloadButton.setAttribute('download', 'ZGEshader.zgeproj');
+    downloadButton.setAttribute('download', ZGEname + '.zgeproj');
     
     // Change button to an anchor to support download attribute
     downloadButton.outerHTML = downloadButton.outerHTML.replace(/^<button/, '<a').replace(/button>$/, 'a>');
