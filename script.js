@@ -55,7 +55,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.lastIndexOf(endMarker) - endMarker.length + 1;
+            const endIndex = t.indexOf(endMarker) + 1;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -70,7 +70,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         ZGEvars.forEach(function(i) {
             varString += '        ';
             varString += '<ShaderVariable Name="' + i.id[0].toUpperCase() + i.id.slice(1);
-            varString += '" VariableName=ZGE' + i.id;
+            varString += '" VariableName="ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
@@ -83,7 +83,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         t = t.replace('<![CDATA[Alpha\n', varString);
 
         // add variables to code
-        varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n';
+        varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);\n';
         ZGEvars.forEach(function(i, index) {
             varString += 'ZGE' + i.id + '=Parameters[' + index + ']' + ';\n';
             // if the range is defined, add it to the string
@@ -93,7 +93,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 //varString += '<Variable Name="' + i.id + '" Type="2" Value="' + i.value + '"/>\n';
             }
         });
-        t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n', varString);
+        t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n', varString + ']]>\n');
 
         outputCode = t;
         document.getElementById('outputCode').value = t;
