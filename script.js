@@ -122,8 +122,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
     if (!downloadButton) { // If the button doesn't exist, create it
         downloadButton = document.createElement('button');
         downloadButton.id = 'downloadButton';
-        downloadButton.textContent = '\u2913 Download ZGE Project File';
-        document.querySelector('.container').appendChild(downloadButton);
+        downloadButton.textContent = '\u2913 Download ZGE Project';
+        document.querySelector('#content').appendChild(downloadButton);
     }
     
     // Set the download link with the converted code

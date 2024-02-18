@@ -1,38 +1,131 @@
 body, html {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.97em;
+  background-color: rgb(102, 110, 118);
+  color: #ccc;
 }
 
-.container {
+p {
+  color: #aaa;
+}
+
+a {
+  color: rgb(60, 186, 142);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#container {
   max-width: 600px;
   margin: 20px auto;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: rgb(18, 29, 33);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.5);
+  border: rgb(63, 72, 77) solid 4px;
+  border-top-width: 0px;
+}
+
+#titlebar {
+  background: rgb(63, 72, 77);
+  height: 30px;
+  margin: auto;
+}
+
+#titlebar h1 {
+  font-size:  1em;
+  font-style: normal;
+  font-weight: 400;
+  position:relative;
+  padding: 4px 0px 0px 2em;
+}
+
+#titlebar h1::before {
+  content: '▶';
+  position: absolute;
+  font-size: 0.7em;
+  left: 1em;
+  top: 0.7em;
+}
+
+#content {
+  padding: 0px 20px 0px 20px;
+  overflow: auto;
 }
 
 textarea {
-  width: 96%;
+  background: linear-gradient(to bottom,
+    rgb(42, 74, 74) 0%,
+    rgb(24, 45, 44) 100%);
+  color: rgb(120, 241, 226);
+  border: 1px solid rgba(120, 241, 226,0.15);
+  width: 97%;
   height: 150px;
+  margin-bottom: 20px;
   padding: 10px;
+  font-size: 14px;
+  outline: none;
+  opacity: 0.85;
 }
 
 #outputCode {
-  background: #eee;
+  margin-top: 20px;
+}
+
+textarea::placeholder {
+  font-weight: bold;
+  opacity: 0.5;
+  color: rgba(120, 241, 226, 0.8);
+}
+
+textarea:hover {
+  opacity: 1.0;
+  border: 1px solid rgba(120, 241, 226,0.5);
+}
+
+::-webkit-scrollbar {
+  width: 1em;
+}
+ 
+::-webkit-scrollbar-track {
+  background-color: rgb(50, 58, 63);
+  box-shadow: inset 0 0 3px rgb(0, 0, 0);
+}
+ 
+::-webkit-scrollbar-thumb {
+  background-color: rgb(80, 89, 94);
+  outline: 1px solid slategrey;
+}
+
+::-webkit-scrollbar-button {
+  background-color: rgb(80, 89, 94);
+  outline: 1px solid slategrey;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: rgba(80, 89, 94, 0);
+}
+
+::-webkit-resizer {
+  background-color: rgba(80, 89, 94, 0);
 }
 
 button, .button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
+  display: block;
+  float: right;
+  padding: 10px 30px;
+  border-radius: 0px;
   border: none;
-  cursor: pointer;
-  margin: 10px 0 15px;
+  box-shadow: 0px 0.5px 1px rgba(0, 0, 0, 0.1), inset 0px 0.5px 0.5px rgba(255, 255, 255, 0.267), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.12);
+  color: #bbb;
+  background: linear-gradient(to bottom,  rgb(141, 1, 1) 0%,rgb(79, 0, 0) 100%);
 }
 
-button:hover, .button:hover {
-  background-color: #0056b3;
+.button {
+  margin-bottom: 20px;
 }
 
 .hidden {
@@ -40,8 +133,17 @@ button:hover, .button:hover {
 }
 
 #notification {
+  transition: 2s opacity;
+  background: linear-gradient(to bottom,  rgb(42, 74, 74) 0%,
+  rgb(24, 45, 44) 100%);
+  color: rgb(120, 241, 226);
+  border: 1px solid rgba(120, 241, 226,0.15);
+  width: 97%;
+  height: 3em;
+  margin-bottom: 20px;
+  padding: 10px;
+  font-size: 14px;
   margin-top: 20px;
-  color: green;
 }
 
 /*!

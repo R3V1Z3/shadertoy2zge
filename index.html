@@ -8,14 +8,18 @@
 </head>
 <body>
     <a class="github-fork-ribbon right-top" href="https://github.com/R3V1Z3/shadertoy2zge" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
-    <div class="container">
-        <h1>ShaderToy -> ZGameEditor Converter</h1>
-        <p>Convert Shadertoy shaders into <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm">ZGameEditor</a>
-            engine (including built-in <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm">FL Studio</a> plugin) projects.</p>
-        <textarea id="inputCode" placeholder="Paste your ShaderToy code here..."></textarea>
-        <button id="convertButton">Convert Code</button>
-        <textarea id="outputCode" placeholder="Converted code will appear here..." readonly></textarea>
-        <div id="notification" class="hidden">Operation completed!</div>
+    <div id="container">
+        <div id="titlebar">
+            <h1>Shadertoy2ZGE</h1>
+        </div>
+        <div id="content">
+            <p>Convert Shadertoy shaders into <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm">ZGameEditor</a>
+                engine projects. Ready for use with the standalone engine or the <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm">FL Studio</a> plugin.</p>
+            <textarea id="inputCode" placeholder="Paste your ShaderToy code here..."></textarea>
+            <button id="convertButton">Convert</button>
+            <textarea id="outputCode" placeholder="Converted code will appear here..." readonly></textarea>
+            <div id="notification" class="hidden">Operation completed!</div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
