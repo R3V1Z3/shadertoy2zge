@@ -34,7 +34,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 title = line.substring(index + 7).trim();
                 reAdd = false;
             }
-            index = lowerCaseLine.indexOf("author:");
+            index = lcase.indexOf("author:");
             if (index !== -1) {
                 author = line.substring(index + 8).trim();
                 reAdd = false;
