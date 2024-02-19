@@ -84,7 +84,12 @@ textarea::placeholder {
 
 textarea:hover {
   opacity: 1.0;
-  border: 1px solid rgba(120, 241, 226,0.5);
+  border: 1px solid rgba(120, 241, 226,0.05);
+}
+
+textarea::selection {
+  background: rgba(120, 241, 226, 0.25);
+  color: rgb(120, 241, 226);
 }
 
 ::-webkit-scrollbar {
