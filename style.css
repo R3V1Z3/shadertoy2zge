@@ -69,6 +69,7 @@ textarea {
   font-size: 14px;
   outline: none;
   opacity: 0.85;
+  cursor: auto;
 }
 
 #outputCode {
