@@ -65,7 +65,10 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let authorString = '<Constant Name="AuthorInfo" Type="2" StringValue="' + author + '"/>';
         t = t.replace(/<Constant Name="AuthorInfo"[^>]*>/, authorString);
 
-        // parse to get the variable name "ZGExxxxxx"
+        // replace sizeDim1 with varString size
+        const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255"></Array>';
+        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (varString.length + 1) +'" Persistent="255"></Array>'
+        t = t.replace(sizeDim, sizeDimNew);
 
         // add variables as parameters
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';

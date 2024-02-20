@@ -60,6 +60,7 @@ textarea {
   background: linear-gradient(to bottom,
     rgb(42, 74, 74) 0%,
     rgb(24, 45, 44) 100%);
+  box-shadow: inset 0px 0px 6px rgba(0,0,0,0.85);
   color: rgb(120, 241, 226);
   border: 1px solid rgba(120, 241, 226,0.15);
   width: 97%;
