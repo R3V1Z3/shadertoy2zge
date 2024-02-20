@@ -67,7 +67,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         // replace sizeDim1 with varString size
         const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255"></Array>';
-        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (varString.length + 1) +'" Persistent="255"></Array>'
+        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + 1) +'" Persistent="255"></Array>'
         t = t.replace(sizeDim, sizeDimNew);
 
         // add variables as parameters
