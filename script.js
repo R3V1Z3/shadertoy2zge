@@ -45,9 +45,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
         if (line.includes("float ZGE")) reAdd = false;
         if (reAdd) outputCode += line + '\n';
     });
-    // ZGEvars.forEach(function(i) {
-    //     outputCode = outputCode.replaceAll('ZGE' + i.id, i.id);
-    // });
 
     // Splice user code into template
     try {
@@ -148,7 +145,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     // Set the download link with the converted code
     const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(outputCode);
     downloadButton.setAttribute('href', dataUri);
-    downloadButton.setAttribute('download', title + '.zgeproj');
+    downloadButton.setAttribute('download', author + ' ' + title + '.zgeproj');
     copyButton.onclick = function() {
         navigator.clipboard.writeText(outputCode);
         alert("Copied");
