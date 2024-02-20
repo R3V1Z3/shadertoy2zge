@@ -45,9 +45,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
         if (line.includes("float ZGE")) reAdd = false;
         if (reAdd) outputCode += line + '\n';
     });
-    ZGEvars.forEach(function(i) {
-        outputCode = outputCode.replaceAll('ZGE' + i.id, i.id);
-    });
+    // ZGEvars.forEach(function(i) {
+    //     outputCode = outputCode.replaceAll('ZGE' + i.id, i.id);
+    // });
 
     // Splice user code into template
     try {
@@ -60,7 +60,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + endMarker.length + 3;
+            const endIndex = t.indexOf(endMarker) + endMarker.length + 2;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -74,7 +74,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i) {
             varString += '        ';
-            varString += '<ShaderVariable Name="' + i.id;
+            varString += '<ShaderVariable Name="ZGE' + i.id;
             varString += '" VariableName="ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });

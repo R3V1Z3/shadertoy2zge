@@ -11,9 +11,9 @@ ZGameEditor provides a built-in language for creating games, visualizations and 
 - Extracts any float variable declarations prefixed with ZGE (ex: ZGEtimeFactor, ZGEratio), adds them as uniforms and creates respective parameters to adjust their values.
 - Provides a download link of the resulting project via data uri.
 
-## ZGAVariables
+## Extraction of float variables
 
-The tool will attempt to extract variables defined as floats, with the prefix ZGE.
+The tool will attempt to extract variables defined as floats, with the prefix ZGE, in order to use them as uniforms that can be adjusted with sliders in ZGameEditor.
 
 For example:
 ```
