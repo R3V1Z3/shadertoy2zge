@@ -12,12 +12,12 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // Extracting the range values if they are present
         let rangeFrom = matches[3] ? matches[3].trim() : undefined;
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
-        varString += "uniform float " + matches[1] + ';\n';
+        varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
             value: matches[2].trim(),
-            rangeFrom: rangeFrom,
-            rangeTo: rangeTo,
+            rangeFrom: rangeFrom.trim(),
+            rangeTo: rangeTo.trim(),
         });
     }
     // Get shader name and author from provided code
@@ -60,7 +60,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         if(t.includes(startMarker) && t.includes(endMarker)) {
             const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + endMarker.length + 1;
+            const endIndex = t.indexOf(endMarker) + endMarker.length + 3;
             t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
         }
 
@@ -74,16 +74,28 @@ document.getElementById('convertButton').addEventListener('click', async functio
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i) {
             varString += '        ';
-            varString += '<ShaderVariable VariableName="' + i.id;
-            varString += '" VariableRef="ZGE' + i.id;
+            varString += '<ShaderVariable Name="' + i.id;
+            varString += '" VariableName="ZGE' + i.id;
             varString += '" Value="' + i.value + '"/>\n';
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
 
         // add variables to CDATA
         varString = '<![CDATA[';
+        // quick function to format the variables for easy reading:
+        // areaOfEffect to Area Of Effect
+        function formatString(str) {
+            const words = str.split(/(?=[A-Z])/);
+            const caps = words.map((word, index) => {
+              if (index === 0) {
+                return word.charAt(0).toUpperCase() + word.slice(1);
+              }
+              return word;
+            });
+            return caps.join(' ');
+        }
         ZGEvars.forEach(function(i) {
-            varString += i.id[0].toUpperCase() + i.id.slice(1) + '\n';
+            varString += formatString(i.id) + '\n';
         });
         t = t.replace('<![CDATA[Alpha\n', varString);
 
@@ -97,7 +109,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                     varString += 'Parameters[' + index + ']';
                 } else {
                     // ( x - min(x) ) / ( max(x) - min(x) )
-                    varString += '((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')/(' + i.rangeTo + '-' + i.rangeFrom + '))';
+                    varString += '((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')*(' + i.rangeTo + '-' + i.rangeFrom + '))';
                 }
             } else {
                 varString += 'Parameters[' + index + ']';
@@ -119,12 +131,17 @@ document.getElementById('convertButton').addEventListener('click', async functio
         notification.classList.add('hidden');
     }, 3000); // Hide the notification after 3 seconds
 
-    // Create or update the download button
-    let downloadButton = document.getElementById('downloadButton');
-    if (!downloadButton) { // If the button doesn't exist, create it
+    // Create or update the copy button
+    let copyButton = document.getElementById('copyButton');
+    if (!copyButton) { // If the button doesn't exist, create it
+        copyButton = document.createElement('button');
+        copyButton.id = 'copyButton';
+        copyButton.textContent = '🗐 Copy';
+        document.querySelector('#content').appendChild(copyButton); 
+        // Create download button
         downloadButton = document.createElement('button');
         downloadButton.id = 'downloadButton';
-        downloadButton.textContent = '\u2913 Download ZGE Project';
+        downloadButton.textContent = '⇩ Download ZGE Project';
         document.querySelector('#content').appendChild(downloadButton);
     }
     
@@ -132,6 +149,10 @@ document.getElementById('convertButton').addEventListener('click', async functio
     const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(outputCode);
     downloadButton.setAttribute('href', dataUri);
     downloadButton.setAttribute('download', title + '.zgeproj');
+    copyButton.onclick = function() {
+        navigator.clipboard.writeText(outputCode);
+        alert("Copied");
+    }
     
     // Change button to an anchor to support download attribute
     downloadButton.outerHTML = downloadButton.outerHTML.replace(/^<button/, '<a class="button"').replace(/button>$/, 'a>');

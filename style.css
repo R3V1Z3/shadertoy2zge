@@ -74,6 +74,7 @@ textarea {
 
 #outputCode {
   margin-top: 20px;
+  filter: grayscale(1);
 }
 
 textarea::placeholder {
@@ -128,6 +129,11 @@ button, .button {
   box-shadow: 0px 0.5px 1px rgba(0, 0, 0, 0.1), inset 0px 0.5px 0.5px rgba(255, 255, 255, 0.267), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.12);
   color: #bbb;
   background: linear-gradient(to bottom,  rgb(141, 1, 1) 0%,rgb(79, 0, 0) 100%);
+}
+
+#copyButton {
+  background: linear-gradient(to bottom,  rgb(106, 106, 106) 0%,rgb(57, 57, 57) 100%);
+  float: left;
 }
 
 .button {
