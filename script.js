@@ -97,7 +97,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         // =================================================================
 
-        const pako = require('pako');
+        //const pako = require('pako');
 
         function encodeFloatsToCompressedHex(floats) {
             // Step 1 & 2: Convert the floats to an ArrayBuffer in IEEE 754 format
