@@ -95,6 +95,38 @@ document.getElementById('convertButton').addEventListener('click', async functio
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
 
+        // =================================================================
+
+        const pako = require('pako');
+
+        function encodeFloatsToCompressedHex(floats) {
+            // Step 1 & 2: Convert the floats to an ArrayBuffer in IEEE 754 format
+            const buffer = new ArrayBuffer(floats.length * 4); // 4 bytes per float
+            const view = new DataView(buffer);
+            floats.forEach((float, index) => {
+                view.setFloat32(index * 4, float, true); // true for little endian
+            });
+        
+            // Step 3: Compress the byte array using pako (DEFLATE)
+            const compressed = pako.deflate(new Uint8Array(buffer));
+        
+            // Step 4: Convert the compressed data to a hexadecimal string
+            return Array.from(compressed).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        // create 1-dim array from i.values
+        let scaledValues = [];
+        ZGEvars.forEach(function(i, index) {
+            let scaledValue = i.value;
+            if (i.rangeFrom && i.rangeTo) {
+                scaledValue = (i.value * i.rangeTo - i.rangeFrom) / 1.0 + i.rangeFrom;
+            }
+            scaledValues.push(scaledValue);
+        });
+        const encodedHex = encodeFloatsToCompressedHex(scaledValues);
+        t = t.replace('<![CDATA[789C]]>', '<![CDATA[' + encodedHex + ']]>');
+
+        // =================================================================
+
         // add variables to CDATA
         varString = '<![CDATA[';
         // quick function to format the variables for easy reading:
