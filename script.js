@@ -65,18 +65,32 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let authorString = '<Constant Name="AuthorInfo" Type="2" StringValue="' + author + '"/>';
         t = t.replace(/<Constant Name="AuthorInfo"[^>]*>/, authorString);
 
-        // replace sizeDim1 with varString size
+        // replace sizeDim1 with varString size todo
         const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255"></Array>';
         let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + 1) +'" Persistent="255"></Array>'
         t = t.replace(sizeDim, sizeDimNew);
 
         // add variables as parameters
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
-        ZGEvars.forEach(function(i) {
+        ZGEvars.forEach(function(i, index) {
             varString += '        ';
             varString += '<ShaderVariable Name="ZGE' + i.id;
             varString += '" VariableName="ZGE' + i.id;
-            varString += '" Value="' + i.value + '"/>\n';
+            varString += '" Value="' + i.value;
+            varString += ' ValuePropRef="';
+            // if the range is defined, add it to the string
+            if (i.rangeFrom && i.rangeTo) {
+                let p = 'Parameters[' + index + ']';
+                if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
+                    varString += p;
+                } else {
+                    // convert the range to 0-1
+                    varString += `((${p} - ${i.rangeFrom}) * 1.0) / (${i.rangeTo} - ${i.rangeFrom});`;
+                }
+            } else {
+                varString += p;
+            }
+            varString += '"/>\n';
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
 
@@ -98,25 +112,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += formatString(i.id) + '\n';
         });
         t = t.replace('<![CDATA[Alpha\n', varString);
-
-        // add variables to code
-        varString = 'uMouse=vector4(0.0,0.0,0.0,0.0);\n';
-        ZGEvars.forEach(function(i, index) {
-            varString += 'ZGE' + i.id + '.value=';
-            // if the range is defined, add it to the string
-            if (i.rangeFrom && i.rangeTo) {
-                if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
-                    varString += 'Parameters[' + index + ']';
-                } else {
-                    // ( x - min(x) ) / ( max(x) - min(x) )
-                    varString += '((' + 'Parameters[' + index + ']' + '-' + i.rangeFrom + ')*(' + i.rangeTo + '-' + i.rangeFrom + '))';
-                }
-            } else {
-                varString += 'Parameters[' + index + ']';
-            }
-            varString += ';\n';
-        });
-        t = t.replace('uMouse=vector4(0.0,0.0,0.0,0.0);]]>\n', varString + ']]>\n');
 
         outputCode = t;
         document.getElementById('outputCode').value = t;
