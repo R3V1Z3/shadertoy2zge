@@ -49,7 +49,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
     // Splice user code into template
     try {
-        const response = await fetch('templates/basic.zgeproj');
+        // if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
+        //     alert("It's a local server!");
+        const response = await fetch('./templates/basic.zgeproj');
         if (!response.ok) throw new Error('Network response was not ok.');
 
         let t = await response.text();
