@@ -16,8 +16,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
         ZGEvars.push({
             id: matches[1],
             value: matches[2].trim(),
-            rangeFrom: rangeFrom.trim(),
-            rangeTo: rangeTo.trim(),
+            rangeFrom: rangeFrom,
+            rangeTo: rangeTo,
         });
     }
     // Get shader name and author from provided code
@@ -77,7 +77,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += '<ShaderVariable Name="ZGE' + i.id;
             varString += '" VariableName="ZGE' + i.id;
             varString += '" Value="' + i.value;
-            varString += ' ValuePropRef="';
+            varString += '" ValuePropRef="';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
                 let p = 'Parameters[' + index + ']';
