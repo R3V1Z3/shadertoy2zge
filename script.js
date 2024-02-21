@@ -62,12 +62,13 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
 
         // Add shader author into template
-        let authorString = '<Constant Name="AuthorInfo" Type="2" StringValue="' + author + '"/>';
-        t = t.replace(/<Constant Name="AuthorInfo"[^>]*>/, authorString);
+        const authorStr = '<Constant Name="AuthorInfo" Type="2"/>';
+        let authorStrNew = '<Constant Name="AuthorInfo" Type="2" StringValue="' + author + '"/>';
+        t = t.replace(authorStr, authorStrNew);
 
         // replace sizeDim1 with varString size todo
         const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255"></Array>';
-        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + 1) +'" Persistent="255"></Array>'
+        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + 1) + '" Persistent="255"></Array>'
         t = t.replace(sizeDim, sizeDimNew);
 
         // add variables as parameters
