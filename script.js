@@ -24,7 +24,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
     var lines = outputCode.split('\n');
     outputCode = varString;
     lines.forEach(function(line, i, object) {
-        // reAdd indicates whether to re-add this line back into outputCode
+        // we don't want to re-add these lines if author and title are found
+        // as they're added to the project file
         let reAdd = true;
         if (line.includes("//")) {
             // Convert line to lowercase for case-insensitive search
@@ -74,6 +75,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables as parameters
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i, index) {
+            let p = 'Parameters[' + index + ']';
             varString += '        ';
             varString += '<ShaderVariable Name="ZGE' + i.id;
             varString += '" VariableName="ZGE' + i.id;
@@ -81,7 +83,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += '" ValuePropRef="';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {
-                let p = 'Parameters[' + index + ']';
                 if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
                     varString += p;
                 } else {
