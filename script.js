@@ -68,8 +68,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
         t = t.replace(authorStr, authorStrNew);
 
         // replace sizeDim1 with varString size todo
-        const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255"></Array>';
-        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + 1) + '" Persistent="255"></Array>'
+        const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255">';
+        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + 1) + '" Persistent="255">'
         t = t.replace(sizeDim, sizeDimNew);
 
         // add variables as parameters
@@ -79,7 +79,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += '        ';
             varString += '<ShaderVariable Name="ZGE' + i.id;
             varString += '" VariableName="ZGE' + i.id;
-            varString += '" Value="' + i.value;
             varString += '" ValuePropRef="';
             // if the range is defined, add it to the string
             if (i.rangeFrom && i.rangeTo) {

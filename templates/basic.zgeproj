@@ -81,7 +81,7 @@ void main(){
       <Children>
         <Array Name="Parameters" SizeDim1="1" Persistent="255">
           <Values>
-<![CDATA[789C63600081067B54CC00C11196760C4800007376044A]]>
+<![CDATA[789C]]>
           </Values>
         </Array>
         <Constant Name="ParamHelpConst" Type="2">
