@@ -98,9 +98,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
 
         // =================================================================
-
-        //const pako = require('pako');
-
         function encodeFloatsToCompressedHex(floats) {
             // Step 1 & 2: Convert the floats to an ArrayBuffer in IEEE 754 format
             const buffer = new ArrayBuffer(floats.length * 4); // 4 bytes per float

@@ -20,7 +20,7 @@ uMouse=vector4(0.0,0.0,0.0,0.0);]]>
     <RenderSprite/>
   </OnRender>
   <Content>
-    <Shader Name="ShaderToy_Default">
+    <Shader Name="MainShader">
       <VertexShaderSource>
 <![CDATA[#version 120
 
@@ -100,7 +100,11 @@ void main(){
     </Group>
     <Group Comment="Materials and Textures">
       <Children>
-        <Material Name="mCanvas" Blend="1" Shader="ShaderToy_Default"/>
+        <Material Name="mCanvas" Shader="MainShader">
+          <Textures>
+            <MaterialTexture Name="FeedbackMaterialTexture" TexCoords="1"/>
+          </Textures>
+        </Material>
       </Children>
     </Group>
   </Content>
