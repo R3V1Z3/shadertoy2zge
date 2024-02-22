@@ -114,13 +114,16 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let scaledValues = [];
         ZGEvars.forEach(function(i, index) {
             let scaledValue = i.value;
-            if (i.rangeFrom && i.rangeTo) {
-                scaledValue = (i.value * i.rangeTo - i.rangeFrom) / 1.0 + i.rangeFrom;
+            // if scaledValue > 1.0, we need to scale it down to 0.0 to 1.0 range
+            if (scaledValue > 1.0) {
+                scaledValue = (i.value - 1.0) / 1.0 + 1.0;
             }
             // TODO:
             // values are getting destroyed through the assignment above
             // we'll need to figure out optimal way to adjust these values
-            scaledValue = i.value;
+            //
+            // Initial values are fine, they just need to be scaled for 0.0 to 1.0 range
+            // scaledValue = i.value;
             scaledValues.push(+scaledValue);
         });
         const encodedHex = encodeFloatsToCompressedHex(scaledValues);
