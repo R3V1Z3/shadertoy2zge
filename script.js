@@ -117,7 +117,11 @@ document.getElementById('convertButton').addEventListener('click', async functio
             if (i.rangeFrom && i.rangeTo) {
                 scaledValue = (i.value * i.rangeTo - i.rangeFrom) / 1.0 + i.rangeFrom;
             }
-            scaledValues.push(scaledValue);
+            // TODO:
+            // values are getting destroyed through the assignment above
+            // we'll need to figure out optimal way to adjust these values
+            scaledValue = i.value;
+            scaledValues.push(+scaledValue);
         });
         const encodedHex = encodeFloatsToCompressedHex(scaledValues);
         t = t.replace('<![CDATA[789C]]>', '<![CDATA[' + encodedHex + ']]>');
