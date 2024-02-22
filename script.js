@@ -49,8 +49,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
     // Splice user code into template
     try {
-        // if (location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.hostname === "")
-        //     alert("It's a local server!");
         const response = await fetch('./templates/basic.zgeproj');
         if (!response.ok) throw new Error('Network response was not ok.');
 
@@ -88,7 +86,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                     varString += p;
                 } else {
                     // convert the range to 0-1
-                    varString += `((${p} * ${i.rangeTo} - ${i.rangeFrom}) / 1.0) + ${i.rangeFrom};`;
+                    varString += `((${p} * ${i.rangeTo} - ${i.rangeFrom}) / 1.0) + ${i.rangeFrom}`;
                 }
             } else {
                 varString += p;
@@ -123,7 +121,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
         });
         const encodedHex = encodeFloatsToCompressedHex(scaledValues);
         t = t.replace('<![CDATA[789C]]>', '<![CDATA[' + encodedHex + ']]>');
-
         // =================================================================
 
         // add variables to CDATA
@@ -159,6 +156,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     }, 3000); // Hide the notification after 3 seconds
 
     // Create or update the copy button
+    // TODO: this doesn't change author and title after first press
     let copyButton = document.getElementById('copyButton');
     if (!copyButton) { // If the button doesn't exist, create it
         copyButton = document.createElement('button');

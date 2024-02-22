@@ -133,6 +133,10 @@ button, .button {
   background: linear-gradient(to bottom,  rgb(141, 1, 1) 0%,rgb(79, 0, 0) 100%);
 }
 
+#downloadButton:hover {
+  text-decoration: none;
+}
+
 button:hover, .button:hover {
   filter: brightness(1.5);
 }
