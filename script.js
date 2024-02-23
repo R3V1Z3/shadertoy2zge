@@ -116,14 +116,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
             let scaledValue = i.value;
             // if scaledValue > 1.0, we need to scale it down to 0.0 to 1.0 range
             if (scaledValue > 1.0) {
-                scaledValue = (i.value - 1.0) / 1.0 + 1.0;
+                scaledValue = (((i.value - i.rangeFrom) * (1.0 - 0.0) ) / (i.rangeTo - i.rangeFrom) ) + 0.0;
             }
-            // TODO:
-            // values are getting destroyed through the assignment above
-            // we'll need to figure out optimal way to adjust these values
-            //
-            // Initial values are fine, they just need to be scaled for 0.0 to 1.0 range
-            // scaledValue = i.value;
+            // TODO: 
             scaledValues.push(+scaledValue);
         });
         const encodedHex = encodeFloatsToCompressedHex(scaledValues);
