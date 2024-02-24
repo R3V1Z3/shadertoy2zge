@@ -86,7 +86,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                     varString += p;
                 } else {
                     // convert the range to 0-1
-                    varString += `((${p} * ${i.rangeTo} - ${i.rangeFrom}) / 1.0) + ${i.rangeFrom}`;
+                    varString += `((${p} - ${i.rangeFrom}) * 1.0) / (${i.rangeTo} - ${i.rangeFrom})`;
                 }
             } else {
                 varString += p;
