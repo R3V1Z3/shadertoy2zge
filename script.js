@@ -87,11 +87,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 } else {
                     let max = i.rangeMax;
                     let min = i.rangeMin;
-                    //varString += `((${p} - ${i.rangeMin}) * 1.0) / (${i.rangeMax} - ${i.rangeMin})`;
-                    // NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-                    // scaledValue = (((i.value - i.rangeMin) * (1.0 - 0.0) ) / (i.rangeMax - i.rangeMin) ) + 0.0;
-                    varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
-                    //varString += `((${p} * ${i.rangeMax} - ${i.rangeMin}) / 1.0) + ${i.rangeMin}`;
+                    //varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
+                    varString += `((${p} * ${max} - ${min}) / 1.0) + ${min}`;
                 }
             } else {
                 varString += p;
