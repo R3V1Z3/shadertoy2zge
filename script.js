@@ -5,7 +5,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     const ZGEvars = [];
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
     // Fill vars variable array
-    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*([0-9.]+),\s*([0-9.]+))?/g;
+    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?/g;
     let matches;
     let varString = "";
     while ((matches = regex.exec(outputCode)) !== null) {
