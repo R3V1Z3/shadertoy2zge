@@ -10,14 +10,14 @@ document.getElementById('convertButton').addEventListener('click', async functio
     let varString = "";
     while ((matches = regex.exec(outputCode)) !== null) {
         // Extracting the range values if they are present
-        let rangeFrom = matches[3] ? matches[3].trim() : undefined;
-        let rangeTo = matches[4] ? matches[4].trim() : undefined;
+        let rangeMin = matches[3] ? matches[3].trim() : undefined;
+        let rangeMax = matches[4] ? matches[4].trim() : undefined;
         varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
             value: matches[2].trim(),
-            rangeFrom: rangeFrom,
-            rangeTo: rangeTo,
+            rangeMin: rangeMin,
+            rangeMax: rangeMax,
         });
     }
     // Get shader name and author from provided code
@@ -81,12 +81,17 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += '" VariableName="ZGE' + i.id;
             varString += '" ValuePropRef="';
             // if the range is defined, add it to the string
-            if (i.rangeFrom && i.rangeTo) {
-                if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
+            if (i.rangeMin && i.rangeMax) {
+                if ( i.rangeMin == "0.0" && i.rangeMax == "1.0") {
                     varString += p;
                 } else {
-                    // convert the range to 0-1
-                    varString += `((${p} - ${i.rangeFrom}) * 1.0) / (${i.rangeTo} - ${i.rangeFrom})`;
+                    let max = i.rangeMax;
+                    let min = i.rangeMin;
+                    //varString += `((${p} - ${i.rangeMin}) * 1.0) / (${i.rangeMax} - ${i.rangeMin})`;
+                    // NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+                    // scaledValue = (((i.value - i.rangeMin) * (1.0 - 0.0) ) / (i.rangeMax - i.rangeMin) ) + 0.0;
+                    varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
+                    //varString += `((${p} * ${i.rangeMax} - ${i.rangeMin}) / 1.0) + ${i.rangeMin}`;
                 }
             } else {
                 varString += p;
@@ -116,7 +121,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
             let scaledValue = i.value;
             // if scaledValue > 1.0, we need to scale it down to 0.0 to 1.0 range
             if (scaledValue > 1.0) {
-                scaledValue = (((i.value - i.rangeFrom) * (1.0 - 0.0) ) / (i.rangeTo - i.rangeFrom) ) + 0.0;
+                scaledValue = (((i.value - i.rangeMin) * (1.0 - 0.0) ) / (i.rangeMax - i.rangeMin) ) + 0.0;
             }
             // TODO: 
             scaledValues.push(+scaledValue);
