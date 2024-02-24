@@ -85,8 +85,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
                     varString += p;
                 } else {
-                    let max = i.rangeMax;
-                    let min = i.rangeMin;
+                    let max = i.rangeTo;
+                    let min = i.rangeFrom;
                     varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
                     // varString += `((${p} * ${i.rangeTo} - ${i.rangeFrom}) / 1.0) + ${i.rangeFrom}`;
                 }
