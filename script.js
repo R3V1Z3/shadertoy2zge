@@ -67,7 +67,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let authorStrNew = '<Constant Name="AuthorInfo" Type="2" StringValue="' + author + '"/>';
         t = t.replace(authorStr, authorStrNew);
 
-        // replace sizeDim1 with varString size todo
+        // replace sizeDim1 with varString size
         const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255">';
         let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length) + '" Persistent="255">'
         t = t.replace(sizeDim, sizeDimNew);
@@ -88,6 +88,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
                     //let max = i.rangeTo;
                     //let min = i.rangeFrom;
                     //varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
+                    // TODO:
+                    // This incorrect range conversion shouldn't work.
+                    // meanwhile the correct conversion doesn't work.
                     varString += `((${p} * ${i.rangeTo} - ${i.rangeFrom}) / 1.0) + ${i.rangeFrom}`;
                 }
             } else {
@@ -162,11 +165,12 @@ document.getElementById('convertButton').addEventListener('click', async functio
     // Create or update the copy button
     // TODO: this doesn't change author and title after first press
     let copyButton = document.getElementById('copyButton');
+    let downloadButton = document.getElementById('downloadButton');
     if (!copyButton) { // If the button doesn't exist, create it
         copyButton = document.createElement('button');
         copyButton.id = 'copyButton';
         copyButton.textContent = '🗐 Copy';
-        document.querySelector('#content').appendChild(copyButton); 
+        document.querySelector('#content').appendChild(copyButton);
         // Create download button
         downloadButton = document.createElement('button');
         downloadButton.id = 'downloadButton';
