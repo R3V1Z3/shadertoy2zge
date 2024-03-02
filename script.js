@@ -85,13 +85,13 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
                     varString += p;
                 } else {
-                    //let max = i.rangeTo;
-                    //let min = i.rangeFrom;
+                    let max = i.rangeTo;
+                    let min = i.rangeFrom;
                     //varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
                     // TODO:
                     // This incorrect range conversion shouldn't work.
                     // meanwhile the correct conversion doesn't work.
-                    varString += `((${p} * ${i.rangeTo} - ${i.rangeFrom}) / 1.0) + ${i.rangeFrom}`;
+                    varString += `((${p} * ${max} - ${min}) / 1.0) + ${min}`;
                 }
             } else {
                 varString += p;
@@ -115,13 +115,16 @@ document.getElementById('convertButton').addEventListener('click', async functio
             // Step 4: Convert the compressed data to a hexadecimal string
             return Array.from(compressed).map(b => b.toString(16).padStart(2, '0')).join('');
         }
-        // create 1-dim array from i.values
+        // create sizeDim1 array from i.values
         let scaledValues = [];
         ZGEvars.forEach(function(i, index) {
+            // original shadertoy code uses unscaled values
+            // we'll only need to scale values above 1.0 for ZGE to work with them
             let scaledValue = i.value;
-            // if scaledValue > 1.0, we need to scale it down to 0.0 to 1.0 range
+            let max = i.rangeTo;
+            let min = i.rangeFrom;
             if (scaledValue > 1.0) {
-                scaledValue = (((i.value - i.rangeFrom) * (1.0 - 0.0) ) / (i.rangeTo - i.rangeFrom) ) + 0.0;
+                scaledValue = (((i.value - min) * (1.0 - 0.0) ) / (max - min) ) + 0.0;
             }
             // TODO: 
             scaledValues.push(+scaledValue);
@@ -163,7 +166,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
     }, 3000); // Hide the notification after 3 seconds
 
     // Create or update the copy button
-    // TODO: this doesn't change author and title after first press
     let copyButton = document.getElementById('copyButton');
     let downloadButton = document.getElementById('downloadButton');
     if (!copyButton) { // If the button doesn't exist, create it
