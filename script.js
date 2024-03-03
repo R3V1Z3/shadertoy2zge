@@ -87,14 +87,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 } else {
                     let max = i.rangeTo;
                     let min = i.rangeFrom;
-                    //varString += `((${p} - ${min}) * (1.0 - 0.0)) / (${max} - ${min}) + 0.0`;
-                    // TODO:
-                    // This incorrect range conversion shouldn't work.
-                    // meanwhile the correct conversion doesn't work.
-                    // This is taking the SLIDER value
-                    // and converting it to the new number range
-                    // so this IS the correct conversion
-                    varString += `((${p} * (${max} - ${min})) ${max} - ${min}) / 1.0) + ${min}`;
+                    varString += `(((${p} - 0.0) * (${max} - ${min})) / (1.0 - 0.0)) + ${min}`;
                 }
             } else {
                 varString += p;
