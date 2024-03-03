@@ -119,10 +119,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
             let scaledValue = i.value;
             let max = i.rangeTo;
             let min = i.rangeFrom;
-            if (scaledValue > 1.0) {
+            if (scaledValue > 1.0 || scaledValue < 0.0) {
                 scaledValue = (((i.value - min) * (1.0 - 0.0) ) / (max - min) ) + 0.0;
             }
-            // TODO: 
             scaledValues.push(+scaledValue);
         });
         const encodedHex = encodeFloatsToCompressedHex(scaledValues);
