@@ -91,7 +91,10 @@ document.getElementById('convertButton').addEventListener('click', async functio
                     // TODO:
                     // This incorrect range conversion shouldn't work.
                     // meanwhile the correct conversion doesn't work.
-                    varString += `((${p} * ${max} - ${min}) / 1.0) + ${min}`;
+                    // This is taking the SLIDER value
+                    // and converting it to the new number range
+                    // so this IS the correct conversion
+                    varString += `((${p} * (${max} - ${min})) ${max} - ${min}) / 1.0) + ${min}`;
                 }
             } else {
                 varString += p;
