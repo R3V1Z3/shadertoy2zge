@@ -41,7 +41,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 author = line.substring(index + 8).trim();
                 reAdd = false;
             }
-            index = lcase.indexOf("ZGEdelta");
+            index = lcase.indexOf("zgedelta");
             if (index !== -1) {
                 zgedelta = true;
                 reAdd = false;
