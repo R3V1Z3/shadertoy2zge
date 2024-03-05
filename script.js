@@ -1,5 +1,6 @@
 document.getElementById('convertButton').addEventListener('click', async function() {
     const inputCode = document.getElementById('inputCode').value;
+    let zgedelta = false;
     let title = "ZGEshader";
     let author = "Shader author";
     const ZGEvars = [];
@@ -40,6 +41,11 @@ document.getElementById('convertButton').addEventListener('click', async functio
                 author = line.substring(index + 8).trim();
                 reAdd = false;
             }
+            index = lcase.indexOf("ZGEdelta");
+            if (index !== -1) {
+                zgedelta = true;
+                reAdd = false;
+            }
         }
         // we've already filled the ZGEvars array so lets now remove the lines from the code
         // since they'll be added as uniforms
@@ -75,7 +81,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
         // add variables as parameters
         varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
         ZGEvars.forEach(function(i, index) {
-            let p = 'Parameters[' + index + ']';
+            let ix = index;
+            if (zgedelta) ix += 1;
+            let p = 'Parameters[' + ix + ']';
             varString += '        ';
             varString += '<ShaderVariable Name="ZGE' + i.id;
             varString += '" VariableName="ZGE' + i.id;
@@ -95,6 +103,11 @@ document.getElementById('convertButton').addEventListener('click', async functio
             varString += '"/>\n';
         });
         t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
+
+        // add zgedelta adjustment for speed if applicable
+        if (zgedelta) {
+            t = t.replace("float Speed=1.0;", "float Speed=(Parameters[0]-.5)*4.0;");
+        }
 
         // =================================================================
         function encodeFloatsToCompressedHex(floats) {
@@ -130,6 +143,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         // add variables to CDATA
         varString = '<![CDATA[';
+        if (zgedelta) {varString += 'Speed\n';}
         // quick function to format the variables for easy reading:
         // areaOfEffect to Area Of Effect
         function formatString(str) {

@@ -4,7 +4,7 @@
     <ZExpression>
       <Expression>
 <![CDATA[//Optional: Move  to Constants to ZLibrary before release.
-float Speed=1.0;//(Parameters[4]-.5)*4.0;
+float Speed=1.0;
 float delta=app.DeltaTime*Speed;
 uTime+=delta;
 
