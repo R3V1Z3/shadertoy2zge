@@ -75,7 +75,9 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
         // replace sizeDim1 with varString size
         const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255">';
-        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length) + '" Persistent="255">'
+        let x = 0;
+        if (zgedelta) { x = 1;}
+        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + x) + '" Persistent="255">'
         t = t.replace(sizeDim, sizeDimNew);
 
         // add variables as parameters
@@ -126,6 +128,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
         // create sizeDim1 array from i.values
         let scaledValues = [];
+        if (zgedelta) {scaledValues.push(0.5);}
         ZGEvars.forEach(function(i, index) {
             // original shadertoy code uses unscaled values
             // we'll only need to scale values above 1.0 for ZGE to work with them
