@@ -37,7 +37,9 @@ uniform vec2 iResolution,iViewport;
 uniform float iTime;
 uniform vec4 iMouse;
 uniform sampler2D tex1;
+uniform sampler2D tex2;
 #define iChannel0 tex1
+#define iChannel1 tex2
 
 //ShaderToy code start.
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
@@ -103,9 +105,15 @@ void main(){
         <Material Name="mCanvas" Shader="MainShader">
           <Textures>
             <MaterialTexture Name="FeedbackMaterialTexture" TexCoords="1"/>
+            <MaterialTexture Name="Source1" Texture="Bitmap1"/>
           </Textures>
         </Material>
       </Children>
     </Group>
+    <Bitmap Name="Bitmap1" Width="128" Height="128">
+      <Producers>
+        <BitmapCells CellStyle="5"/>
+      </Producers>
+    </Bitmap>
   </Content>
 </ZApplication>
