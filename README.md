@@ -7,6 +7,8 @@ ZGameEditor provides a built-in language for creating games, visualizations and 
 ## What it does currently
 - Adds user provided Shadertoy code into the appropriate spot in a template.
 - Ensures texture calls are replaced with ZGE's texture2D.
+- Enables access to the current video texture as iChannel0.
+- Enables access to Image Src drop-down texture as iChannel1.
 - Extracts and adds to project file, user provided name and author from comments like // Title: Blur Author: R3V1Z3
 - Extracts any float variable declarations prefixed with ZGE (ex: ZGEtimeFactor, ZGEratio), adds them as uniforms and creates respective parameters to adjust their values.
 - If keyword **ZGEdelta** is included in any comments, a Speed slider will be added that will adjust deltaTime so as to speed up or reverse time for graphic processing.
@@ -31,3 +33,11 @@ uniform float ZGErandomness;
 ```
 
 It then adds those variables as parameters in ZGameEditor along with formulas to normalize the slider values based on specified Ranges.
+
+## Examples
+
+The following are examples from Shadertoy that have been successfully converted to ZGE projects.
+
+- Lacquer: https://www.shadertoy.com/view/M3jGDR
+- Film Scratches: https://www.shadertoy.com/view/X3sGWl
+- Displace Ooze: https://www.shadertoy.com/view/MXB3zK
