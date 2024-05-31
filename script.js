@@ -131,11 +131,12 @@ document.getElementById('convertButton').addEventListener('click', async functio
         if (zgedelta) {scaledValues.push(0.5);}
         ZGEvars.forEach(function(i, index) {
             // original shadertoy code uses unscaled values
-            // we'll only need to scale values above 1.0 for ZGE to work with them
+            // we'll only need to scale values above 1.0
+            // or below 0.0 for ZGE to work with them
             let scaledValue = i.value;
             let max = i.rangeTo;
             let min = i.rangeFrom;
-            if (scaledValue > 1.0 || scaledValue < 0.0) {
+            if (max > 1.0 || max < 0.0 || min > 1.0 || min < 0.0) {
                 scaledValue = (((i.value - min) * (1.0 - 0.0) ) / (max - min) ) + 0.0;
             }
             scaledValues.push(+scaledValue);
