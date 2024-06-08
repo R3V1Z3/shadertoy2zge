@@ -6,21 +6,26 @@ document.getElementById('convertButton').addEventListener('click', async functio
     const ZGEvars = [];
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
     // Fill vars variable array
-    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?/g;
+    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:\s*\/\/\s*@separator\s*(\w+))?/g;
     let matches;
     let varString = "";
     while ((matches = regex.exec(outputCode)) !== null) {
         // Extracting the range values if they are present
         let rangeFrom = matches[3] ? matches[3].trim() : undefined;
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
+        // Extracting the separator value if it is present
+        let separator = matches[5] ? matches[5].trim() : undefined;
+        
         varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
             value: matches[2].trim(),
             rangeFrom: rangeFrom,
             rangeTo: rangeTo,
+            tags: separator
         });
     }
+    
     // Get shader name and author from provided code
     var lines = outputCode.split('\n');
     outputCode = varString;
@@ -161,7 +166,10 @@ document.getElementById('convertButton').addEventListener('click', async functio
             return caps.join(' ');
         }
         ZGEvars.forEach(function(i) {
-            varString += formatString(i.id) + '\n';
+            // TODO
+            let tags = "";
+            if (i.tags == "separator") tags = " @separator";
+            varString += formatString(i.id) + tags + '\n';
         });
         t = t.replace('<![CDATA[Alpha\n', varString);
 
