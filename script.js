@@ -6,7 +6,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     const ZGEvars = [];
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
     // Fill vars variable array
-    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:\s*\/\/\s*@(.+))?/g;
+    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/g;
     let matches;
     let varString = "";
     while ((matches = regex.exec(outputCode)) !== null) {
@@ -15,6 +15,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
         // Extracting the tags if present
         let tags = matches[5] ? matches[5].trim() : undefined;
+        tags = "@" + tags;
         varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
