@@ -34,6 +34,16 @@ uniform float ZGErandomness;
 
 It then adds those variables as parameters in ZGameEditor along with formulas to normalize the slider values based on specified Ranges.
 
+It also adds content following the @ symbol in those definitions so that separators between variables can be added within ZGE.
+
+For example:
+```
+float ZGEimgSrcMix = 0.0;
+float ZGEGamma = 1.0; // Range: 0.0, 3.0 @separator
+```
+
+The @separator tag is added to the variable declaration so that ZGE adds a separator prior to the ZGEGamma variable.
+
 ## Examples
 
 The following are examples from Shadertoy that have been successfully converted to ZGE projects.
