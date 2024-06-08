@@ -15,7 +15,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
         // Extracting the tags if present
         let tags = matches[5] ? matches[5].trim() : undefined;
-        tags = "@" + tags;
         varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
             id: matches[1],
@@ -166,9 +165,8 @@ document.getElementById('convertButton').addEventListener('click', async functio
             return caps.join(' ');
         }
         ZGEvars.forEach(function(i) {
-            // TODO
             let tags = " ";
-            if (i.tags != undefined) tags += i.tags;
+            if (i.tags != undefined) tags += "@" + i.tags;
             varString += formatString(i.id) + tags + '\n';
         });
         t = t.replace('<![CDATA[Alpha\n', varString);
