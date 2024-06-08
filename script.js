@@ -167,8 +167,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
         ZGEvars.forEach(function(i) {
             // TODO
-            let tags = "";
-            if (i.tags == "separator") tags = " @separator";
+            let tags = " " + i.tags;
             varString += formatString(i.id) + tags + '\n';
         });
         t = t.replace('<![CDATA[Alpha\n', varString);
