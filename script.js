@@ -6,7 +6,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     const ZGEvars = [];
     let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
     // Fill vars variable array
-    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:\s*\/\/\s*@separator\s*(\w+))?/g;
+    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:\s*\/\/\s*@tags\s*(\w+))?/g;
     let matches;
     let varString = "";
     while ((matches = regex.exec(outputCode)) !== null) {
@@ -14,7 +14,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         let rangeFrom = matches[3] ? matches[3].trim() : undefined;
         let rangeTo = matches[4] ? matches[4].trim() : undefined;
         // Extracting the separator value if it is present
-        let separator = matches[5] ? matches[5].trim() : undefined;
+        let tags = matches[5] ? matches[5].trim() : undefined;
         
         varString += "uniform float ZGE" + matches[1] + ';\n';
         ZGEvars.push({
@@ -22,7 +22,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
             value: matches[2].trim(),
             rangeFrom: rangeFrom,
             rangeTo: rangeTo,
-            tags: separator
+            tags: tags
         });
     }
     
