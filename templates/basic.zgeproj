@@ -11,7 +11,41 @@ uTime+=delta;
 //Most used ShaderToy uniform variables
 uResolution=vector2(app.ViewportWidth,app.ViewportHeight);
 uViewport=vector2(app.ViewportX,app.ViewportY);
-uMouse=vector4(0.0,0.0,0.0,0.0);]]>
+// uMouse=vector4(0.0,0.0,0.0,0.0); // Old initialization
+
+// uMouse.xy = mouse coordinates in pixels, from bottom-left of the viewport.
+// uMouse.z = mouse down state for left button (X position when pressed)
+// uMouse.w = mouse down state for left button (Y position when pressed)
+// ZGE app.InputState: 0=No input, 1=Mouse move, 2=Mouse down, 3=Mouse still down, 4=Mouse up
+// app.InputX/Y are absolute screen coords. We need them relative to viewport.
+float mouseX = app.InputX - app.ViewportX;
+float mouseY = app.InputY - app.ViewportY; // ZGE Y is often top-left, Shadertoy is bottom-left.
+// If app.ViewportHeight is available and coordinates need to be flipped:
+// float mouseY = app.ViewportHeight - (app.InputY - app.ViewportY); 
+// For now, assuming direct mapping and user handles inversion in shader if needed.
+
+if (app.InputState == 2) { // Mouse button just pressed
+    uMouse = vector4(mouseX, mouseY, mouseX, mouseY);
+} else if (app.InputState == 3) { // Mouse button still down
+    // Keep uMouse.zw as the initial click position, update uMouse.xy for current drag position
+    uMouse = vector4(mouseX, mouseY, uMouse.z, uMouse.w); 
+} else { // Mouse is up or just moving
+    // If mouse was previously pressed (uMouse.z != 0 and uMouse.w != 0, or check a flag)
+    // and current state is Mouse Up (4), or just moving (1) or no input (0)
+    if ((uMouse.z != 0.0 || uMouse.w != 0.0) && (app.InputState == 4 || app.InputState == 0 || app.InputState == 1)) {
+        // Check if the click components are positive, meaning it was clicked and held
+        if (uMouse.z > 0.0 || uMouse.w > 0.0) { // Ensure we only negate if it was indeed positive (pressed)
+            uMouse = vector4(mouseX, mouseY, -abs(uMouse.z), -abs(uMouse.w));
+        } else { // It was already negative (released), keep current xy, keep zw as is (already negative)
+            uMouse = vector4(mouseX, mouseY, uMouse.z, uMouse.w);
+        }
+    } else { // Mouse not pressed, or was never pressed to begin with.
+         uMouse = vector4(mouseX, mouseY, 0.0, 0.0);
+    }
+}
+
+// uDate = year, month (1-12), day (1-31), time_in_seconds_today
+uDate = vector4(app.Year, app.Month, app.Day, app.TimeInSeconds);]]>
       </Expression>
     </ZExpression>
   </OnUpdate>
@@ -36,6 +70,7 @@ void main(){
 uniform vec2 iResolution,iViewport;
 uniform float iTime;
 uniform vec4 iMouse;
+uniform vec4 iDate; // year, month, day, time_in_seconds
 uniform sampler2D tex1;
 uniform sampler2D tex2;
 #define iChannel0 tex1
@@ -66,6 +101,7 @@ void main(){
         <ShaderVariable VariableName="iViewport" VariableRef="uViewport"/>
         <ShaderVariable VariableName="iTime" VariableRef="uTime"/>
         <ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>
+        <ShaderVariable VariableName="iDate" VariableRef="uDate"/>
       </UniformVariables>
     </Shader>
     <Group Comment="Default ShaderToy Uniform Varible Inputs">

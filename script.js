@@ -1,122 +1,321 @@
-document.getElementById('convertButton').addEventListener('click', async function() {
-    const inputCode = document.getElementById('inputCode').value;
-    let zgedelta = false;
-    let title = "ZGEshader";
-    let author = "Shader author";
-    const ZGEvars = [];
-    let outputCode = inputCode.replaceAll('texture(', 'texture2D(');
-    // Fill vars variable array
-    const regex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/g;
-    let matches;
-    let varString = "";
-    while ((matches = regex.exec(outputCode)) !== null) {
-        // Extracting the range values if they are present
-        let rangeFrom = matches[3] ? matches[3].trim() : undefined;
-        let rangeTo = matches[4] ? matches[4].trim() : undefined;
-        // Extracting the tags if present
-        let tags = matches[5] ? matches[5].trim() : undefined;
-        varString += "uniform float ZGE" + matches[1] + ';\n';
-        ZGEvars.push({
-            id: matches[1],
-            value: matches[2].trim(),
-            rangeFrom: rangeFrom,
-            rangeTo: rangeTo,
-            tags: tags,
-        });
-    }
-    
-    // Get shader name and author from provided code
-    var lines = outputCode.split('\n');
-    outputCode = varString;
-    lines.forEach(function(line, i, object) {
-        // we don't want to re-add these lines if author and title are found
-        // as they're added to the project file
-        let reAdd = true;
-        if (line.includes("//")) {
-            // Convert line to lowercase for case-insensitive search
-            var lcase = line.toLowerCase();
-            var index = lcase.indexOf("title:");
-            if (index !== -1) {
-                title = line.substring(index + 7).trim();
-                reAdd = false;
-            }
-            index = lcase.indexOf("author:");
-            if (index !== -1) {
-                author = line.substring(index + 8).trim();
-                reAdd = false;
-            }
-            index = lcase.indexOf("zgedelta");
-            if (index !== -1) {
-                zgedelta = true;
-                reAdd = false;
+const inputCodeElement = document.getElementById('inputCode');
+const iChannelConfigDiv = document.getElementById('ichannelConfig');
+
+// Function to show/hide iChannel config rows based on input code
+function updateIChannelVisibility() {
+    const code = inputCodeElement.value;
+    for (let i = 0; i < 4; i++) {
+        const row = document.getElementById(`ichannel${i}Row`);
+        if (row) {
+            if (code.includes(`iChannel${i}`)) {
+                row.style.display = 'block';
+            } else {
+                row.style.display = 'none';
             }
         }
-        // we've already filled the ZGEvars array so lets now remove the lines from the code
-        // since they'll be added as uniforms
-        if (line.includes("float ZGE")) reAdd = false;
-        if (reAdd) outputCode += line + '\n';
-    });
+    }
+}
 
-    // Splice user code into template
+// Add event listener to inputCode textarea
+inputCodeElement.addEventListener('input', updateIChannelVisibility);
+
+// Call it once on page load in case there's pre-filled code (e.g. browser refresh)
+updateIChannelVisibility();
+
+let notificationTimeout; // To manage hiding the notification bar
+
+// Helper function for notifications
+function displayNotification(message, type = 'info') { // type can be 'info', 'warning', 'error'
+    const notification = document.getElementById('notification');
+    
+    // Append new message
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message;
+    messageElement.className = `notification-message notification-${type}`; // Add classes for styling
+    notification.appendChild(messageElement);
+
+    notification.classList.remove('hidden'); // Make sure it's visible
+
+    // Clear previous timeout if exists
+    if (notificationTimeout) {
+        clearTimeout(notificationTimeout);
+    }
+
+    // Set timeout to hide the notification bar after a delay
+    notificationTimeout = setTimeout(() => {
+        notification.classList.add('hidden');
+        notification.innerHTML = ''; // Clear messages when hiding
+    }, 7000); // Increased time for warnings, and clears all messages
+}
+
+
+document.getElementById('convertButton').addEventListener('click', async function() {
+    // Clear previous notifications
+    const notification = document.getElementById('notification');
+    notification.innerHTML = ''; // Clear content
+    notification.classList.add('hidden'); // Hide it
+    if (notificationTimeout) {
+        clearTimeout(notificationTimeout); // Clear any pending timeout
+    }
+
+    const rawInputCode = inputCodeElement.value;
+    let zgedelta = false; // Flag for ZGEDelta speed parameter
+    let title = "ZGEshader"; // Default shader title
+    let author = "Shader author"; // Default shader author
+    const ZGEvars = []; // Array to store ZGE custom parameters
+    
+    // Automatically convert texture() to texture2D() for ZGE compatibility
+    const processedInputCode = rawInputCode.replaceAll('texture(', 'texture2D(');
+
+    // 1. Extract ZGE custom parameters, title, author, and zgedelta flag
+    // Also build the initial shader code string for ZGE uniforms and the main shader body.
+    let zgeUniformDeclarationsString = "";
+    let userShaderBody = "";
+    const lines = processedInputCode.split('\n');
+
+    const zgeVarRegex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/g;
+    let lineMatches;
+
+    lines.forEach(function(line) {
+        let lineIsZGEVar = false;
+        // Check for ZGE variable definitions using the regex
+        // We need to reset lastIndex for each line if using a global regex in a loop,
+        // or just re-declare the regex locally, or don't use exec in a loop this way.
+        // Simpler: test and then extract if it matches.
+        if (zgeVarRegex.test(line)) {
+            // Reset regex for next use or re-exec to get capture groups
+            zgeVarRegex.lastIndex = 0; 
+            lineMatches = zgeVarRegex.exec(line);
+            if (lineMatches) {
+                const rangeFrom = lineMatches[3] ? lineMatches[3].trim() : undefined;
+                const rangeTo = lineMatches[4] ? lineMatches[4].trim() : undefined;
+                const tags = lineMatches[5] ? lineMatches[5].trim() : undefined;
+                
+                zgeUniformDeclarationsString += `uniform float ZGE${lineMatches[1]};\n`;
+                ZGEvars.push({
+                    id: lineMatches[1],
+                    value: lineMatches[2].trim(),
+                    rangeFrom: rangeFrom,
+                    rangeTo: rangeTo,
+                    tags: tags,
+                });
+                lineIsZGEVar = true; // This line is a ZGE var, so don't add to userShaderBody
+            }
+        }
+
+        // Extract Title, Author, ZGEDelta from comments
+        if (line.includes("//")) {
+            const lcaseLine = line.toLowerCase();
+            let titleIndex = lcaseLine.indexOf("title:");
+            if (titleIndex !== -1) {
+                title = line.substring(titleIndex + 6).trim(); // "title:".length is 6
+                return; // Don't add this comment line to userShaderBody
+            }
+            let authorIndex = lcaseLine.indexOf("author:");
+            if (authorIndex !== -1) {
+                author = line.substring(authorIndex + 7).trim(); // "author:".length is 7
+                return; // Don't add this comment line to userShaderBody
+            }
+            let zgedeltaIndex = lcaseLine.indexOf("zgedelta");
+            if (zgedeltaIndex !== -1) {
+                zgedelta = true;
+                return; // Don't add this comment line to userShaderBody
+            }
+        }
+        
+        if (!lineIsZGEVar) {
+            userShaderBody += line + '\n';
+        }
+    });
+    
+    // Notify if no ZGE parameters found (can be done after parsing all lines)
+    if (ZGEvars.length === 0) {
+        displayNotification('Info: No custom shader parameters (e.g., float ZGEmyVar = 1.0;) were found in your code. If you expected parameters, please check the syntax.', 'info');
+    }
+
+    // 2. Fetch and process the ZGE project template
     try {
         const response = await fetch('./templates/basic.zgeproj');
-        if (!response.ok) throw new Error('Network response was not ok.');
+        if (!response.ok) {
+            // More specific error for network vs file not found (though fetch API blurs this)
+            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+        }
+        let templateXMLText = await response.text();
 
-        let t = await response.text();
-        const startMarker = "//ShaderToy code start.";
-        const endMarker = "//ShaderToy code end.";
+        // 3. iChannel Processing: Determine necessary iChannel uniforms and material textures
+        let iChannelUniformsDeclaration = ""; // For shader code
+        let materialTexturesXMLString = "";   // For ZGEP <Textures>
+        let newBitmapsXMLString = "";         // For ZGEP <Content> if new bitmaps are needed
+        const definedBitmapResources = new Set(); // Track new bitmaps to avoid duplicates
 
-        if(t.includes(startMarker) && t.includes(endMarker)) {
-            const startIndex = t.indexOf(startMarker) - 1;
-            const endIndex = t.indexOf(endMarker) + endMarker.length + 2;
-            t = t.substring(0, startIndex) + '\n' + outputCode + '\n' + t.substring(endIndex);
+        for (let i = 0; i < 4; i++) {
+            const iChannelRow = document.getElementById(`ichannel${i}Row`);
+            // Check if the iChannel UI is visible (meaning iChannelN was detected in shader)
+            if (iChannelRow && iChannelRow.style.display !== 'none') {
+                const selectedSource = document.getElementById(`ichannel${i}Source`).value;
+                const uniformName = `iChannel${i}`;
+
+                if (selectedSource !== "none") {
+                    iChannelUniformsDeclaration += `uniform sampler2D ${uniformName};\n`;
+                    
+                    let textureResourceName; // Name of the bitmap resource in ZGEP
+                    switch (selectedSource) {
+                        case "feedback":
+                            // This refers to ZGE's built-in feedback mechanism.
+                            // The template already contains <MaterialTexture Name="FeedbackMaterialTexture" ... />.
+                            // We link the shader's iChannelN uniform to this existing "FeedbackMaterialTexture".
+                            textureResourceName = "FeedbackMaterialTexture";
+                            materialTexturesXMLString += `        <MaterialTexture Name="${uniformName}" Texture="${textureResourceName}" TexCoords="1" TextureSlot="${i}"/>\n`;
+                            break;
+                        case "bitmap1":
+                            // This refers to a predefined "Bitmap1" in the template.
+                            textureResourceName = "Bitmap1";
+                            materialTexturesXMLString += `        <MaterialTexture Name="${uniformName}" Texture="${textureResourceName}" TexCoords="1" TextureSlot="${i}"/>\n`;
+                            break;
+                        case "bitmap2_new":
+                        case "bitmap3_new":
+                        case "bitmap4_new":
+                            // User wants to create a new texture resource.
+                            const n = parseInt(selectedSource.charAt(6)); // e.g., "bitmap2_new" -> 2
+                            textureResourceName = `Bitmap${n}_custom`; // e.g., Bitmap2_custom
+                            materialTexturesXMLString += `        <MaterialTexture Name="${uniformName}" Texture="${textureResourceName}" TexCoords="1" TextureSlot="${i}"/>\n`;
+                            if (!definedBitmapResources.has(textureResourceName)) {
+                                newBitmapsXMLString += `    <Bitmap Name="${textureResourceName}" Width="256" Height="256"><Producers><BitmapCells CellStyle="5"/></Producers></Bitmap>\n`;
+                                definedBitmapResources.add(textureResourceName);
+                            }
+                            break;
+                    }
+                }
+            }
         }
 
-        // Add shader author into template
-        const authorStr = '<Constant Name="AuthorInfo" Type="2"/>';
-        let authorStrNew = '<Constant Name="AuthorInfo" Type="2" StringValue="' + author + '"/>';
-        t = t.replace(authorStr, authorStrNew);
+        // 4. Prepare the final shader code for injection
+        // Remove any hardcoded Shadertoy iChannel defines or old tex1/tex2 uniforms from user's shader body,
+        // as these are now handled dynamically.
+        userShaderBody = userShaderBody.replace(/uniform sampler2D tex1;\s*\n?/g, '');
+        userShaderBody = userShaderBody.replace(/uniform sampler2D tex2;\s*\n?/g, '');
+        userShaderBody = userShaderBody.replace(/#define iChannel0 tex1\s*\n?/g, '');
+        userShaderBody = userShaderBody.replace(/#define iChannel1 tex2\s*\n?/g, '');
+        
+        // Final shader code includes dynamic iChannel uniforms, ZGE var uniforms, and the processed user code.
+        const finalShaderCode = iChannelUniformsDeclaration + zgeUniformDeclarationsString + userShaderBody;
 
-        // replace sizeDim1 with varString size
-        const sizeDim = '<Array Name="Parameters" SizeDim1="1" Persistent="255">';
-        let x = 0;
-        if (zgedelta) { x = 1;}
-        let sizeDimNew = '<Array Name="Parameters" SizeDim1="' + (ZGEvars.length + x) + '" Persistent="255">'
-        t = t.replace(sizeDim, sizeDimNew);
+        // 5. Modify the ZGEP template ('templateXMLText')
+        // 5a. Remove old static texture uniforms and defines from the template's main shader section
+        const fragmentShaderMarkerStart = "<FragmentShaderSource>\n<![CDATA[";
+        const fragmentShaderMarkerEnd = "]]>\n      </FragmentShaderSource>";
+        const fsStartIndex = templateXMLText.indexOf(fragmentShaderMarkerStart);
+        const fsEndIndex = templateXMLText.indexOf(fragmentShaderMarkerEnd, fsStartIndex);
 
-        // add variables as parameters
-        varString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n';
-        ZGEvars.forEach(function(i, index) {
-            let ix = index;
-            if (zgedelta) ix += 1;
-            let p = 'Parameters[' + ix + ']';
-            varString += '        ';
-            varString += '<ShaderVariable Name="ZGE' + i.id;
-            varString += '" VariableName="ZGE' + i.id;
-            varString += '" ValuePropRef="';
-            // if the range is defined, add it to the string
-            if (i.rangeFrom && i.rangeTo) {
-                if ( i.rangeFrom == "0.0" && i.rangeTo == "1.0") {
-                    varString += p;
+        if (fsStartIndex !== -1 && fsEndIndex !== -1) {
+            let fsCode = templateXMLText.substring(fsStartIndex + fragmentShaderMarkerStart.length, fsEndIndex);
+            // Remove template's default/old iChannel related lines
+            fsCode = fsCode.replace(/uniform sampler2D tex1;\s*\n?/g, '');
+            fsCode = fsCode.replace(/uniform sampler2D tex2;\s*\n?/g, '');
+            fsCode = fsCode.replace(/#define iChannel0 tex1\s*\n?/g, '');
+            fsCode = fsCode.replace(/#define iChannel1 tex2\s*\n?/g, '');
+            templateXMLText = templateXMLText.substring(0, fsStartIndex + fragmentShaderMarkerStart.length) + fsCode + templateXMLText.substring(fsEndIndex);
+        }
+        
+        // 5b. Replace/create the <Textures> section in <Material Name="mCanvas">
+        const materialCanvasStart = '<Material Name="mCanvas" Shader="MainShader">';
+        const materialCanvasEnd = '</Material>';
+        // Using string literals for search; .search() can also take regex, but here it's literal.
+        const texturesStartRegex = /<Textures>/; 
+        const texturesEndRegex = /<\/Textures>/; 
+
+        let materialStartIndex = templateXMLText.indexOf(materialCanvasStart);
+        if (materialStartIndex !== -1) {
+            let materialEndIndex = templateXMLText.indexOf(materialCanvasEnd, materialStartIndex);
+            if (materialEndIndex !== -1) {
+                // Extract the content between <Material ...> and </Material>
+                let materialContent = templateXMLText.substring(materialStartIndex + materialCanvasStart.length, materialEndIndex);
+                
+                let texturesSectionStartIndex = materialContent.search(texturesStartRegex);
+                let texturesSectionEndIndex = materialContent.search(texturesEndRegex);
+
+                // Construct the new <Textures> section with dynamic iChannel mappings
+                const newTexturesXMLSection = `\n      <Textures>\n${materialTexturesXMLString}      </Textures>\n    `;
+
+                if (texturesSectionStartIndex !== -1 && texturesSectionEndIndex !== -1) {
+                    // Replace existing <Textures> section
+                    materialContent = materialContent.substring(0, texturesSectionStartIndex) + newTexturesXMLSection + materialContent.substring(texturesSectionEndIndex + "</Textures>".length);
                 } else {
-                    let max = i.rangeTo;
-                    let min = i.rangeFrom;
-                    varString += `(((${p} - 0.0) * (${max} - ${min})) / (1.0 - 0.0)) + ${min}`;
+                    // Prepend <Textures> section if it doesn't exist (should be rare for this template)
+                    materialContent = newTexturesXMLSection + materialContent; 
+                }
+                // Reconstruct templateXMLText with modified materialContent
+                templateXMLText = templateXMLText.substring(0, materialStartIndex + materialCanvasStart.length) + materialContent + templateXMLText.substring(materialEndIndex);
+            }
+        }
+        
+        // 5c. Add new <Bitmap> resources to <Content>
+        const contentEndMarker = '</Content>';
+        const contentEndIndex = templateXMLText.lastIndexOf(contentEndMarker);
+        if (contentEndIndex !== -1 && newBitmapsXMLString) {
+            templateXMLText = templateXMLText.substring(0, contentEndIndex) + newBitmapsXMLString + templateXMLText.substring(contentEndIndex);
+        }
+
+        // 5d. Splice the final prepared shader code into the template
+        const shaderStartMarker = "//ShaderToy code start."; // Marker in template
+        const shaderEndMarker = "//ShaderToy code end.";   // Marker in template
+        if(templateXMLText.includes(shaderStartMarker) && templateXMLText.includes(shaderEndMarker)) {
+            const startIndex = templateXMLText.indexOf(shaderStartMarker) -1; // Position before the marker line
+            const endIndex = templateXMLText.indexOf(shaderEndMarker) + shaderEndMarker.length + 1; // Position after the marker line
+            templateXMLText = templateXMLText.substring(0, startIndex) + '\n' + finalShaderCode + '\n' + templateXMLText.substring(endIndex);
+        }
+
+        // 5e. Update AuthorInfo in template
+        const authorStr = '<Constant Name="AuthorInfo" Type="2"/>';
+        const authorStrNew = `<Constant Name="AuthorInfo" Type="2" StringValue="${author}"/>`;
+        templateXMLText = templateXMLText.replace(authorStr, authorStrNew);
+
+        // 5f. Update Parameters SizeDim1 for ZGE custom variables
+        const paramsSizeDimRegex = /<Array Name="Parameters" SizeDim1="(\d+)" Persistent="255">/;
+        const numParams = (zgedelta ? 1 : 0) + ZGEvars.length;
+        const paramsSizeDimNew = `<Array Name="Parameters" SizeDim1="${numParams}" Persistent="255">`;
+        templateXMLText = templateXMLText.replace(paramsSizeDimRegex, paramsSizeDimNew);
+        
+        // 5g. Generate and insert ShaderVariable XML for ZGE custom parameters
+        let shaderVarsXMLString = '<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n'; // Start with iMouse
+        ZGEvars.forEach(function(param, index) {
+            let paramIndexInArray = index + (zgedelta ? 1 : 0);
+            let paramControlRef = `Parameters[${paramIndexInArray}]`;
+            shaderVarsXMLString += '        '; // Indentation
+            shaderVarsXMLString += `<ShaderVariable Name="ZGE${param.id}" VariableName="ZGE${param.id}" ValuePropRef="`;
+            if (param.rangeFrom && param.rangeTo) {
+                const min = parseFloat(param.rangeFrom);
+                const max = parseFloat(param.rangeTo);
+                if (min === 0.0 && max === 1.0) {
+                    shaderVarsXMLString += paramControlRef;
+                } else {
+                    shaderVarsXMLString += `(((${paramControlRef} - 0.0) * (${max} - ${min})) / (1.0 - 0.0)) + ${min}`;
                 }
             } else {
-                varString += p;
+                shaderVarsXMLString += paramControlRef;
             }
-            varString += '"/>\n';
+            shaderVarsXMLString += '"/>\n';
         });
-        t = t.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', varString);
+        templateXMLText = templateXMLText.replace('<ShaderVariable VariableName="iMouse" VariableRef="uMouse"/>\n', shaderVarsXMLString);
 
-        // add zgedelta adjustment for speed if applicable
+        // 5h. Adjust Speed parameter if zgedelta is used
         if (zgedelta) {
-            t = t.replace("float Speed=1.0;", "float Speed=(Parameters[0]-.5)*4.0;");
+            templateXMLText = templateXMLText.replace("float Speed=1.0;", "float Speed=(Parameters[0]-.5)*4.0;");
         }
 
+        // 6. Parameter Values Encoding (for CDATA block)
         // =================================================================
         function encodeFloatsToCompressedHex(floats) {
+            // Ensure input is an array of numbers
+            if (!Array.isArray(floats) || !floats.every(f => typeof f === 'number' && !isNaN(f))) {
+                console.warn('encodeFloatsToCompressedHex: Input must be an array of valid numbers. Returning empty string.');
+                displayNotification('Warning: Could not encode parameter values due to invalid input.', 'warning');
+                return "789C"; // Minimal valid DEFLATE block (empty string)
+            }
+            if (floats.length === 0) {
+                return "789C"; // Default for empty params, ZGE expects at least this
+            }
+
             // Step 1 & 2: Convert the floats to an ArrayBuffer in IEEE 754 format
             const buffer = new ArrayBuffer(floats.length * 4); // 4 bytes per float
             const view = new DataView(buffer);
@@ -132,57 +331,119 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
         // create sizeDim1 array from i.values
         let scaledValues = [];
-        if (zgedelta) {scaledValues.push(0.5);}
-        ZGEvars.forEach(function(i, index) {
-            // original shadertoy code uses unscaled values
-            // we'll only need to scale values above 1.0
-            // or below 0.0 for ZGE to work with them
-            let scaledValue = i.value;
-            let max = i.rangeTo;
-            let min = i.rangeFrom;
-            if (max > 1.0 || max < 0.0 || min > 1.0 || min < 0.0) {
-                scaledValue = (((i.value - min) * (1.0 - 0.0) ) / (max - min) ) + 0.0;
+        if (zgedelta) {scaledValues.push(0.5);} // For ZGE Delta Speed control if enabled
+
+        let scaledParamValues = []; // Values to be encoded for ZGEP
+        if (zgedelta) {scaledParamValues.push(0.5);} // Default for ZGEDelta Speed control
+
+        ZGEvars.forEach(function(param) {
+            let originalValueFloat = parseFloat(param.value);
+            let scaledValue; // This will be in the 0-1 range for ZGEP
+
+            if (param.rangeFrom !== undefined && param.rangeTo !== undefined) {
+                let min = parseFloat(param.rangeFrom);
+                let max = parseFloat(param.rangeTo);
+
+                if (isNaN(min) || isNaN(max)) {
+                    displayNotification(`Warning: Parameter ZGE${param.id} has invalid range values (Range: ${param.rangeFrom}, ${param.rangeTo}). Using original value ${originalValueFloat} clamped to 0-1.`, 'warning');
+                    scaledValue = Math.max(0.0, Math.min(1.0, originalValueFloat)); // Clamp original value
+                } else if (min === 0.0 && max === 1.0) {
+                    // Value is declared as 0-1. Clamp if it's outside, but don't remap.
+                    scaledValue = Math.max(0.0, Math.min(1.0, originalValueFloat));
+                    if (originalValueFloat < 0.0 || originalValueFloat > 1.0) {
+                         displayNotification(`Info: Parameter ZGE${param.id} (value: ${originalValueFloat.toFixed(3)}) was clamped to ${scaledValue.toFixed(1)} as its range is 0.0-1.0.`, 'info');
+                    }
+                } else { // Custom range defined, scale to 0-1
+                    if (max === min) { // Avoid division by zero
+                        scaledValue = (originalValueFloat >= min) ? 1.0 : 0.0;
+                    } else {
+                        scaledValue = (originalValueFloat - min) / (max - min);
+                    }
+                    // Clamp the result of scaling to ensure it's within 0-1 for ZGEP
+                    if (scaledValue < 0.0 || scaledValue > 1.0) {
+                        displayNotification(`Info: Parameter ZGE${param.id} (value: ${originalValueFloat.toFixed(3)}) was outside its defined range [${min}, ${max}]. Scaled value ${scaledValue.toFixed(3)} clamped to 0-1.`, 'info');
+                        scaledValue = Math.max(0.0, Math.min(1.0, scaledValue));
+                    }
+                }
+            } else { // No range defined, default target range is 0.0 to 1.0 for ZGEP
+                if (originalValueFloat < 0.0 || originalValueFloat > 1.0) {
+                    scaledValue = Math.max(0.0, Math.min(1.0, originalValueFloat));
+                    displayNotification(`Warning: Parameter ZGE${param.id} (value: ${originalValueFloat.toFixed(3)}) was clamped to ${scaledValue.toFixed(1)} as no custom range was set (defaulting to 0-1 for ZGEP).`, 'warning');
+                } else {
+                    scaledValue = originalValueFloat;
+                }
             }
-            scaledValues.push(+scaledValue);
+            scaledParamValues.push(isNaN(scaledValue) ? 0.0 : +scaledValue); // Ensure valid number, default to 0.0 if NaN
         });
-        const encodedHex = encodeFloatsToCompressedHex(scaledValues);
-        t = t.replace('<![CDATA[789C]]>', '<![CDATA[' + encodedHex + ']]>');
+        const encodedHexValues = encodeFloatsToCompressedHex(scaledParamValues);
+        templateXMLText = templateXMLText.replace('<![CDATA[789C]]>', `<![CDATA[${encodedHexValues}]]>`);
         // =================================================================
 
-        // add variables to CDATA
-        varString = '<![CDATA[';
-        if (zgedelta) {varString += 'Speed\n';}
-        // quick function to format the variables for easy reading:
-        // areaOfEffect to Area Of Effect
-        function formatString(str) {
-            const words = str.split(/(?=[A-Z])/);
-            const caps = words.map((word, index) => {
-              if (index === 0) {
-                return word.charAt(0).toUpperCase() + word.slice(1);
-              }
+        // 7. Parameter Names for CDATA (ParamHelpConst)
+        let paramNamesCDATA = '<![CDATA[';
+        if (zgedelta) {paramNamesCDATA += 'Speed\n';}
+        
+        // Helper function to format ZGE variable names for display (e.g., "zgeMyVar" to "My Var")
+        function formatParamNameForDisplay(str) {
+            // Remove "ZGE" prefix if present
+            const nameWithoutPrefix = str.startsWith('ZGE') ? str.substring(3) : str;
+            const words = nameWithoutPrefix.split(/(?=[A-Z])/); // Split by capital letters
+            return words.map((word, index) => {
+              // Capitalize first word, rest are already capitalized appropriately
+              if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
               return word;
-            });
-            return caps.join(' ');
+            }).join(' ');
         }
-        ZGEvars.forEach(function(i) {
-            let tags = " ";
-            if (i.tags != undefined) tags += "@" + i.tags;
-            varString += formatString(i.id) + tags + '\n';
-        });
-        t = t.replace('<![CDATA[Alpha\n', varString);
 
-        outputCode = t;
-        document.getElementById('outputCode').value = t;
+        ZGEvars.forEach(function(param) {
+            let tagsString = param.tags ? ` @${param.tags}` : ""; // Add tags if present
+            paramNamesCDATA += formatParamNameForDisplay(param.id) + tagsString + '\n';
+        });
+        // Ensure at least one entry if ZGEvars is empty but zgedelta is not, or a default for empty.
+        if (ZGEvars.length === 0 && !zgedelta) {
+            // If no params and no zgedelta, ZGE might expect a default like "Alpha" or just an empty CDATA
+            // The original template had "Alpha", let's keep a placeholder if completely empty.
+            // However, the regex for ParamHelpConst might be specific.
+            // For now, if it's empty, it will just be "<![CDATA[]]>" which is fine.
+            // If ZGEvars is empty and no zgedelta, it will be an empty CDATA.
+            // If zgedelta is true and ZGEvars is empty, it will be "<![CDATA[Speed\n]]>".
+        }
+         paramNamesCDATA += ']]>'; // Close CDATA
+        templateXMLText = templateXMLText.replace('<![CDATA[Alpha\n]]>', paramNamesCDATA);
+
+
+        // Final output assignment
+        const finalOutputCode = templateXMLText;
+        document.getElementById('outputCode').value = finalOutputCode;
+
     } catch (error) {
-        console.error('Failed to fetch the template:', error);
+        console.error('Processing error:', error);
+        displayNotification(`Error during conversion: ${error.message}. Check console for details.`, 'error');
+        return; // Halt conversion process
     }
     
-    // Display the notification
-    const notification = document.getElementById('notification');
-    notification.classList.remove('hidden');
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 3000); // Hide the notification after 3 seconds
+    // Display the "Operation completed!" notification (or it might be overwritten by warnings)
+    // It's better if displayNotification is the single source of truth for the notification bar.
+    // So, if there were no warnings, show "Operation completed!"
+    const notificationElement = document.getElementById('notification');
+    if (notificationElement.innerHTML === '' || notificationElement.classList.contains('hidden')) {
+         // If no warnings were added, or it was hidden, show completion.
+         // However, displayNotification now manages its own timeout.
+         // We can add a success message if no warnings.
+         let hasWarnings = false;
+         notificationElement.querySelectorAll('.notification-message').forEach(msgElement => {
+             if (msgElement.classList.contains('notification-warning')) {
+                 hasWarnings = true;
+             }
+         });
+         if (!hasWarnings) {
+            displayNotification('Operation completed!', 'info');
+         }
+    } else if (!notificationElement.classList.contains('hidden') && notificationElement.innerHTML !== '') {
+        // If there are warnings, append the success message.
+        displayNotification('Operation completed!', 'info');
+    }
+
 
     // Create or update the copy button
     let copyButton = document.getElementById('copyButton');

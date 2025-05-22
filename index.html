@@ -16,7 +16,54 @@
         <div id="content">
             <p>Convert Shadertoy shaders into <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm">ZGameEditor</a>
                 engine projects. Ready for use with the standalone engine or the <a href="https://www.image-line.com/fl-studio-learning/fl-studio-online-manual/html/plugins/ZGameEditor%20Visualizer.htm">FL Studio</a> plugin.</p>
+            <p><small>Note: <code>texture()</code> calls in your shader code will be automatically converted to <code>texture2D()</code> for compatibility with ZGameEditor.</small></p>
             <textarea id="inputCode" placeholder="Paste your ShaderToy code here..." spellcheck="false"></textarea>
+            <div id="ichannelConfig" style="margin-bottom: 10px;">
+                <div id="ichannel0Row" style="display:none; margin-bottom: 5px;">
+                    <label for="ichannel0Source">iChannel0 Source:</label>
+                    <select id="ichannel0Source">
+                        <option value="none">None</option>
+                        <option value="feedback">Feedback ( própria textura )</option>
+                        <option value="bitmap1">Source1 (Bitmap1)</option>
+                        <option value="bitmap2_new">Source2 (Nova Textura)</option>
+                        <option value="bitmap3_new">Source3 (Nova Textura)</option>
+                        <option value="bitmap4_new">Source4 (Nova Textura)</option>
+                    </select>
+                </div>
+                <div id="ichannel1Row" style="display:none; margin-bottom: 5px;">
+                    <label for="ichannel1Source">iChannel1 Source:</label>
+                    <select id="ichannel1Source">
+                        <option value="none">None</option>
+                        <option value="feedback">Feedback ( própria textura )</option>
+                        <option value="bitmap1">Source1 (Bitmap1)</option>
+                        <option value="bitmap2_new">Source2 (Nova Textura)</option>
+                        <option value="bitmap3_new">Source3 (Nova Textura)</option>
+                        <option value="bitmap4_new">Source4 (Nova Textura)</option>
+                    </select>
+                </div>
+                <div id="ichannel2Row" style="display:none; margin-bottom: 5px;">
+                    <label for="ichannel2Source">iChannel2 Source:</label>
+                    <select id="ichannel2Source">
+                        <option value="none">None</option>
+                        <option value="feedback">Feedback ( própria textura )</option>
+                        <option value="bitmap1">Source1 (Bitmap1)</option>
+                        <option value="bitmap2_new">Source2 (Nova Textura)</option>
+                        <option value="bitmap3_new">Source3 (Nova Textura)</option>
+                        <option value="bitmap4_new">Source4 (Nova Textura)</option>
+                    </select>
+                </div>
+                <div id="ichannel3Row" style="display:none; margin-bottom: 5px;">
+                    <label for="ichannel3Source">iChannel3 Source:</label>
+                    <select id="ichannel3Source">
+                        <option value="none">None</option>
+                        <option value="feedback">Feedback ( própria textura )</option>
+                        <option value="bitmap1">Source1 (Bitmap1)</option>
+                        <option value="bitmap2_new">Source2 (Nova Textura)</option>
+                        <option value="bitmap3_new">Source3 (Nova Textura)</option>
+                        <option value="bitmap4_new">Source4 (Nova Textura)</option>
+                    </select>
+                </div>
+            </div>
             <button id="convertButton">Convert ⭆</button>
             <textarea id="outputCode" placeholder="Converted code will appear here..." readonly></textarea>
             <div id="notification" class="hidden">Operation completed!</div>
