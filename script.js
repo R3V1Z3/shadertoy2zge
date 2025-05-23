@@ -53,7 +53,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
         // we've already filled the ZGEvars array so lets now remove the lines from the code
         // since they'll be added as uniforms
-        if (line.includes("float ZGE")) reAdd = false;
+        if (/^\s*float\s+ZGE\w+\s*=/.test(line)) reAdd = false;
         if (reAdd) outputCode += line + '\n';
     });
 
