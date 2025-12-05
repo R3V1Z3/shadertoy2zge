@@ -429,7 +429,12 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
 
         ZGEvars.forEach(function(param) {
-            let tagsString = param.tags ? ` @${param.tags}` : ""; // Add tags if present
+            let tagsString = "";
+            if (param.tags) {
+                // Split tags by space and prefix each with @
+                const tagArray = param.tags.split(/\s+/);
+                tagsString = ' ' + tagArray.map(tag => '@' + tag).join(' ');
+            }
             paramNamesCDATA += formatParamNameForDisplay(param.id) + tagsString + '\n';
         });
         // Ensure at least one entry if ZGEvars is empty but zgedelta is not, or a default for empty.
