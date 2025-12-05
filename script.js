@@ -136,10 +136,6 @@ document.getElementById('convertButton').addEventListener('click', async functio
         if (!lineIsZGEVar) {
             userShaderBody += line + '\n';
         }
-        // we've already filled the ZGEvars array so lets now remove the lines from the code
-        // since they'll be added as uniforms
-        if (/^\s*(float|bool)\s+ZGE\w+\s*=/.test(line)) reAdd = false;
-        if (reAdd) outputCode += line + '\n';
     });
     
     // Notify if no ZGE parameters found (can be done after parsing all lines)
