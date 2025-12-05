@@ -74,45 +74,39 @@ document.getElementById('convertButton').addEventListener('click', async functio
     let userShaderBody = "";
     const lines = processedInputCode.split('\n');
 
-    const zgeVarRegex = /(float|bool) ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/g;
+    // Note: NOT using /g flag since we process one line at a time
+    const zgeVarRegex = /(float|bool) ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/;
     let lineMatches;
 
     lines.forEach(function(line) {
         let lineIsZGEVar = false;
         // Check for ZGE variable definitions using the regex
-        // We need to reset lastIndex for each line if using a global regex in a loop,
-        // or just re-declare the regex locally, or don't use exec in a loop this way.
-        // Simpler: test and then extract if it matches.
-        if (zgeVarRegex.test(line)) {
-            // Reset regex for next use or re-exec to get capture groups
-            zgeVarRegex.lastIndex = 0; 
-            lineMatches = zgeVarRegex.exec(line);
-            if (lineMatches) {
-                const varType = lineMatches[1]; // 'float' or 'bool'
-                const varId = lineMatches[2];
-                const varValue = lineMatches[3].trim();
-                const rangeFrom = lineMatches[4] ? lineMatches[4].trim() : undefined;
-                const rangeTo = lineMatches[5] ? lineMatches[5].trim() : undefined;
-                let tags = lineMatches[6] ? lineMatches[6].trim() : undefined;
-                
-                // Booleans are stored as floats in ZGE (0.0 or 1.0)
-                zgeUniformDeclarationsString += `uniform float ZGE${varId};\n`;
-                
-                // Auto-add @checkbox tag for bool types if not already present
-                if (varType === 'bool' && (!tags || !tags.includes('checkbox'))) {
-                    tags = tags ? `${tags} checkbox` : 'checkbox';
-                }
-                
-                ZGEvars.push({
-                    id: varId,
-                    type: varType,
-                    value: varValue,
-                    rangeFrom: rangeFrom,
-                    rangeTo: rangeTo,
-                    tags: tags,
-                });
-                lineIsZGEVar = true; // This line is a ZGE var, so don't add to userShaderBody
+        lineMatches = line.match(zgeVarRegex);
+        if (lineMatches) {
+            const varType = lineMatches[1]; // 'float' or 'bool'
+            const varId = lineMatches[2];
+            const varValue = lineMatches[3].trim();
+            const rangeFrom = lineMatches[4] ? lineMatches[4].trim() : undefined;
+            const rangeTo = lineMatches[5] ? lineMatches[5].trim() : undefined;
+            let tags = lineMatches[6] ? lineMatches[6].trim() : undefined;
+            
+            // Booleans are stored as floats in ZGE (0.0 or 1.0)
+            zgeUniformDeclarationsString += `uniform float ZGE${varId};\n`;
+            
+            // Auto-add @checkbox tag for bool types if not already present
+            if (varType === 'bool' && (!tags || !tags.includes('checkbox'))) {
+                tags = tags ? `${tags} checkbox` : 'checkbox';
             }
+            
+            ZGEvars.push({
+                id: varId,
+                type: varType,
+                value: varValue,
+                rangeFrom: rangeFrom,
+                rangeTo: rangeTo,
+                tags: tags,
+            });
+            lineIsZGEVar = true; // This line is a ZGE var, so don't add to userShaderBody
         }
 
         // Extract Title, Author, ZGEDelta from comments
