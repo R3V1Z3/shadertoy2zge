@@ -63,6 +63,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     let title = "ZGEshader"; // Default shader title
     let author = "Shader author"; // Default shader author
     const ZGEvars = []; // Array to store ZGE custom parameters
+    let finalOutputCode = ""; // Store the final output code for download/copy
     
     // Automatically convert texture() to texture2D() for ZGE compatibility
     const processedInputCode = rawInputCode.replaceAll('texture(', 'texture2D(');
@@ -445,7 +446,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
 
 
         // Final output assignment
-        const finalOutputCode = templateXMLText;
+        finalOutputCode = templateXMLText;
         document.getElementById('outputCode').value = finalOutputCode;
 
     } catch (error) {
