@@ -493,11 +493,11 @@ document.getElementById('convertButton').addEventListener('click', async functio
     }
     
     // Set the download link with the converted code
-    const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(outputCode);
+    const dataUri = 'data:text/plain;charset=utf-8,' + encodeURIComponent(finalOutputCode);
     downloadButton.setAttribute('href', dataUri);
     downloadButton.setAttribute('download', author + ' ' + title + '.zgeproj');
     copyButton.onclick = function() {
-        navigator.clipboard.writeText(outputCode);
+        navigator.clipboard.writeText(finalOutputCode);
         alert("Copied");
     }
     
