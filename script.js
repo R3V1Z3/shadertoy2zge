@@ -208,6 +208,32 @@ document.getElementById('convertButton').addEventListener('click', async functio
         userShaderBody = userShaderBody.replace(/#define iChannel0 tex1\s*\n?/g, '');
         userShaderBody = userShaderBody.replace(/#define iChannel1 tex2\s*\n?/g, '');
         
+        // Convert boolean-style conditionals to float comparisons for ZGE compatibility
+        // This allows Shadertoy-style "if (ZGEBoolVar)" to work as "if (ZGEBoolVar > 0.5)"
+        ZGEvars.forEach(function(param) {
+            if (param.type === 'bool') {
+                // Match patterns like: if (ZGEVarName) or if (!ZGEVarName) or while (ZGEVarName), etc.
+                // Need to avoid matching function calls like ZGEVarName() or already converted ZGEVarName > 0.5
+                const varName = 'ZGE' + param.id;
+                
+                // Positive condition: if (ZGEVar) -> if (ZGEVar > 0.5)
+                // Matches: if (var), while (var), for (...;var;...), ternary ? var : 
+                // Avoids: var(), var.x, var[, var >, var <, var =, var !, var &, var |
+                const positiveRegex = new RegExp(
+                    `\\b${varName}\\b(?!\\s*[><=!&|\\[\\.()])(?=\\s*[\\)\\?:;,])`,
+                    'g'
+                );
+                userShaderBody = userShaderBody.replace(positiveRegex, `${varName} > 0.5`);
+                
+                // Negative condition: if (!ZGEVar) -> if (ZGEVar < 0.5)
+                const negativeRegex = new RegExp(
+                    `!\\s*${varName}\\b(?!\\s*[><=!&|\\[\\.()])`,
+                    'g'
+                );
+                userShaderBody = userShaderBody.replace(negativeRegex, `${varName} < 0.5`);
+            }
+        });
+        
         // Final shader code includes dynamic iChannel uniforms, ZGE var uniforms, and the processed user code.
         const finalShaderCode = iChannelUniformsDeclaration + zgeUniformDeclarationsString + userShaderBody;
 

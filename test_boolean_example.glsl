@@ -17,19 +17,19 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // Apply brightness adjustment
     col *= ZGEBrightness;
     
-    // Use boolean for glow effect
-    if (ZGEEnableGlow > 0.5) {
+    // Use boolean for glow effect (Shadertoy-style)
+    if (ZGEEnableGlow) {
         float glow = 0.5 + 0.5 * sin(iTime * 2.0);
         col += vec3(glow * 0.2);
     }
     
-    // Use boolean for color inversion
-    if (ZGEInvertColors > 0.5) {
+    // Use boolean for color inversion (Shadertoy-style with negation)
+    if (!ZGEInvertColors) {
         col = 1.0 - col;
     }
     
-    // Use boolean for grid overlay
-    if (ZGEShowGrid > 0.5) {
+    // Use boolean for grid overlay (Shadertoy-style)
+    if (ZGEShowGrid) {
         vec2 grid = mod(fragCoord, ZGEGridSize);
         if (grid.x < 1.0 || grid.y < 1.0) {
             col = mix(col, vec3(1.0), 0.3);
