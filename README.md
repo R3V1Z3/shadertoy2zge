@@ -11,13 +11,15 @@ ZGameEditor provides a built-in language for creating games, visualizations and 
 - Enables access to Image Src drop-down texture as iChannel1.
 - Extracts and adds to project file, user provided name and author from comments like // Title: Blur Author: R3V1Z3
 - Extracts any float variable declarations prefixed with ZGE (ex: ZGEtimeFactor, ZGEratio), adds them as uniforms and creates respective parameters to adjust their values.
+- **NEW:** Extracts bool variable declarations prefixed with ZGE (ex: ZGEEnableEffect, ZGEInvert), adds them as float uniforms (0.0/1.0) and creates checkbox controls in ZGE.
 - If keyword **ZGEdelta** is included in any comments, a Speed slider will be added that will adjust deltaTime so as to speed up or reverse time for graphic processing.
 - Provides a download link of the resulting project via data uri.
 
-## Extraction of float variables
+## Extraction of float and bool variables
 
-The tool will attempt to extract variables defined as floats, with the prefix ZGE, in order to use them as uniforms that can be adjusted with sliders in ZGameEditor.
+The tool will attempt to extract variables defined as floats or bools, with the prefix ZGE, in order to use them as uniforms that can be adjusted in ZGameEditor.
 
+### Float Variables
 For example:
 ```
 float ZGEspeed = 2.0; // Range: 0.0, 4.0
@@ -34,7 +36,19 @@ uniform float ZGErandomness;
 
 It then adds those variables as parameters in ZGameEditor along with formulas to normalize the slider values based on specified Ranges.
 
-It also adds content following the @ symbol in those definitions so that separators between variables can be added within ZGE.
+### Boolean Variables
+For example:
+```
+bool ZGEInvertColors = true;
+bool ZGEShowGrid = false;
+```
+
+Booleans are stored as floats (0.0 = false, 1.0 = true) and automatically receive a checkbox control in ZGE. Use them in shaders with comparisons like `if (ZGEInvertColors > 0.5)`.
+
+See [BOOLEANS.md](BOOLEANS.md) for detailed documentation on boolean parameters.
+
+### Tags
+You can add content following the @ symbol in variable definitions so that separators or other UI controls can be added within ZGE.
 
 For example:
 ```
@@ -42,7 +56,7 @@ float ZGEimgSrcMix = 0.0;
 float ZGEGamma = 1.0; // Range: 0.0, 3.0 @separator
 ```
 
-The @separator tag is added to the variable declaration so that ZGE adds a separator prior to the ZGEGamma variable.
+The @separator tag is added to the variable declaration so that ZGE adds a separator prior to the ZGEGamma variable. Boolean parameters automatically receive the `@checkbox` tag.
 
 ## Examples
 

@@ -73,7 +73,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
     let userShaderBody = "";
     const lines = processedInputCode.split('\n');
 
-    const zgeVarRegex = /float ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/g;
+    const zgeVarRegex = /(float|bool) ZGE(\w+)\s*=\s*([^;]+);(?:\s*\/\/\s*Range:\s*(-?[0-9]+\.?[0-9]*),\s*(-?[0-9]+\.?[0-9]*))?(?:.*?\s*@(.+))?/g;
     let lineMatches;
 
     lines.forEach(function(line) {
@@ -87,14 +87,25 @@ document.getElementById('convertButton').addEventListener('click', async functio
             zgeVarRegex.lastIndex = 0; 
             lineMatches = zgeVarRegex.exec(line);
             if (lineMatches) {
-                const rangeFrom = lineMatches[3] ? lineMatches[3].trim() : undefined;
-                const rangeTo = lineMatches[4] ? lineMatches[4].trim() : undefined;
-                const tags = lineMatches[5] ? lineMatches[5].trim() : undefined;
+                const varType = lineMatches[1]; // 'float' or 'bool'
+                const varId = lineMatches[2];
+                const varValue = lineMatches[3].trim();
+                const rangeFrom = lineMatches[4] ? lineMatches[4].trim() : undefined;
+                const rangeTo = lineMatches[5] ? lineMatches[5].trim() : undefined;
+                let tags = lineMatches[6] ? lineMatches[6].trim() : undefined;
                 
-                zgeUniformDeclarationsString += `uniform float ZGE${lineMatches[1]};\n`;
+                // Booleans are stored as floats in ZGE (0.0 or 1.0)
+                zgeUniformDeclarationsString += `uniform float ZGE${varId};\n`;
+                
+                // Auto-add @checkbox tag for bool types if not already present
+                if (varType === 'bool' && (!tags || !tags.includes('checkbox'))) {
+                    tags = tags ? `${tags} checkbox` : 'checkbox';
+                }
+                
                 ZGEvars.push({
-                    id: lineMatches[1],
-                    value: lineMatches[2].trim(),
+                    id: varId,
+                    type: varType,
+                    value: varValue,
                     rangeFrom: rangeFrom,
                     rangeTo: rangeTo,
                     tags: tags,
@@ -127,7 +138,7 @@ document.getElementById('convertButton').addEventListener('click', async functio
         }
         // we've already filled the ZGEvars array so lets now remove the lines from the code
         // since they'll be added as uniforms
-        if (/^\s*float\s+ZGE\w+\s*=/.test(line)) reAdd = false;
+        if (/^\s*(float|bool)\s+ZGE\w+\s*=/.test(line)) reAdd = false;
         if (reAdd) outputCode += line + '\n';
     });
     
@@ -286,7 +297,10 @@ document.getElementById('convertButton').addEventListener('click', async functio
             let paramControlRef = `Parameters[${paramIndexInArray}]`;
             shaderVarsXMLString += '        '; // Indentation
             shaderVarsXMLString += `<ShaderVariable Name="ZGE${param.id}" VariableName="ZGE${param.id}" ValuePropRef="`;
-            if (param.rangeFrom && param.rangeTo) {
+            // Booleans don't need range remapping
+            if (param.type === 'bool') {
+                shaderVarsXMLString += paramControlRef;
+            } else if (param.rangeFrom && param.rangeTo) {
                 const min = parseFloat(param.rangeFrom);
                 const max = parseFloat(param.rangeTo);
                 if (min === 0.0 && max === 1.0) {
@@ -340,10 +354,29 @@ document.getElementById('convertButton').addEventListener('click', async functio
         if (zgedelta) {scaledParamValues.push(0.5);} // Default for ZGEDelta Speed control
 
         ZGEvars.forEach(function(param) {
-            let originalValueFloat = parseFloat(param.value);
+            let originalValueFloat;
+            
+            // Handle boolean values
+            if (param.type === 'bool') {
+                const boolValue = param.value.toLowerCase();
+                if (boolValue === 'true' || boolValue === '1' || boolValue === '1.0') {
+                    originalValueFloat = 1.0;
+                } else if (boolValue === 'false' || boolValue === '0' || boolValue === '0.0') {
+                    originalValueFloat = 0.0;
+                } else {
+                    displayNotification(`Warning: Boolean parameter ZGE${param.id} has invalid value "${param.value}". Defaulting to false (0.0).`, 'warning');
+                    originalValueFloat = 0.0;
+                }
+            } else {
+                originalValueFloat = parseFloat(param.value);
+            }
+            
             let scaledValue; // This will be in the 0-1 range for ZGEP
 
-            if (param.rangeFrom !== undefined && param.rangeTo !== undefined) {
+            // Booleans don't need range scaling, they're already 0.0 or 1.0
+            if (param.type === 'bool') {
+                scaledValue = originalValueFloat; // Already 0.0 or 1.0
+            } else if (param.rangeFrom !== undefined && param.rangeTo !== undefined) {
                 let min = parseFloat(param.rangeFrom);
                 let max = parseFloat(param.rangeTo);
 
